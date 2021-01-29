@@ -1,0 +1,234 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://assets/playerShip1_blue.png" type="Texture" id=1]
+[ext_resource path="res://assets/sfx_twoTone.ogg" type="AudioStream" id=2]
+[ext_resource path="res://assets/shield1.png" type="Texture" id=3]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends RigidBody2D
+
+const Target = preload(\"Target.gd\")
+const Bonus = preload(\"Bonus.gd\")
+
+const TOP_MARGIN = 48
+const BOTTOM_MARGIN = 4
+const LEFT_MARGIN = 4
+const RIGHT_MARGIN = 4
+
+signal bonus
+signal goal
+signal hit
+
+export var speed = 12
+
+func _process(delta) -> void:
+	if sleeping:
+		return
+
+	var v = Vector2()
+	if Input.is_action_pressed(\"move_right\") && !Input.is_action_pressed(\"move_left\"):
+		v.x = delta
+	elif Input.is_action_pressed(\"move_left\") && !Input.is_action_pressed(\"move_right\"):
+		v.x = -delta
+
+	if Input.is_action_pressed(\"move_down\") && !Input.is_action_pressed(\"move_up\"):
+		v.y = delta
+	elif Input.is_action_pressed(\"move_up\") && !Input.is_action_pressed(\"move_down\"):
+		v.y = -delta
+
+	var rightEdge = get_viewport().size.x - LEFT_MARGIN
+	var leftEdge = LEFT_MARGIN
+	var topEdge = TOP_MARGIN
+	var bottomEdge = get_viewport().size.y - BOTTOM_MARGIN
+
+	if v.length() > 0:
+		v = v.normalized() * speed
+	elif $TouchScreenButton.get_value().length() > 0:
+		v = $TouchScreenButton.get_value().normalized() * speed
+
+	if position.x < leftEdge && v.x <= 0:
+		v.x = 0
+		linear_velocity.x = 0
+	elif position.x > rightEdge && v.x >= 0:
+		v.x = 0
+		linear_velocity.x = 0
+
+	if position.y < topEdge && v.y <= 0:
+		v.y = 0
+		linear_velocity.y = 0
+	elif position.y > bottomEdge && v.y >= 0:
+		v.y = 0
+		linear_velocity.y = 0
+
+	apply_central_impulse(v)
+
+	if position.x < leftEdge:
+		position.x = leftEdge
+	elif position.x > rightEdge:
+		position.x = rightEdge
+	elif position.y < topEdge:
+		position.y = topEdge
+	elif position.y > bottomEdge:
+		position.y = bottomEdge
+
+
+
+func _on_Node2D_body_entered(body: Node) -> void:
+	body.queue_free()
+	if body is Target:
+		emit_signal(\"goal\")
+		$CollectSound.play()
+	elif body is Bonus:
+		emit_signal(\"bonus\")
+		$CollectSound.play()
+	else:
+		$DamageParticles.emitting = false
+		var direction = position.direction_to(body.position)
+		$DamageParticles.position = direction * 32
+		$DamageParticles.direction = direction * -1
+		print(body.position)
+		$DamageParticles.emitting = true
+		emit_signal(\"hit\", linear_velocity.distance_to(body.linear_velocity))
+
+
+
+func _on_TouchScreenButton_pressed() -> void:
+	$TouchIndicator.visible = true
+
+
+func _on_TouchScreenButton_released() -> void:
+	$TouchIndicator.visible = false
+"
+
+[sub_resource type="SpriteFrames" id=2]
+animations = [ {
+"frames": [ ExtResource( 1 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[sub_resource type="CircleShape2D" id=4]
+radius = 64.0
+
+[sub_resource type="GDScript" id=5]
+script/source = "#https://github.com/Gonkee/Gonkees-Shaders/blob/1a886fa6ab9d2f1aac3b3896433349e0f54b9951/non-shaders/Joystick_Button.gd
+extends TouchScreenButton
+
+
+# Gonkee's joystick script for Godot 3 - full tutorial https://youtu.be/uGyEP2LUFPg
+# If you use this script, I would prefer if you gave credit to me and my channel
+
+
+# Change these based on the size of your button and outer sprite
+var radius = Vector2(48, 48)
+var boundary = 56
+
+var ongoing_drag = -1
+
+var return_accel = 20
+
+var threshold = 2
+var _enabled = false
+
+func _process(delta):
+	if ongoing_drag == -1:
+		var pos_difference = (Vector2(0, 0) - radius) - position
+		position += pos_difference * return_accel * delta
+
+func get_button_pos():
+	return position + radius
+
+func _input(event):
+	if event is InputEventScreenDrag or (event is InputEventScreenTouch and event.is_pressed()):
+		var event_dist_from_centre = (event.position - get_parent().global_position).length()
+
+		if event_dist_from_centre <= boundary * global_scale.x or event.get_index() == ongoing_drag:
+			set_global_position(event.position - radius * global_scale)
+
+			if get_button_pos().length() > boundary:
+				set_position( get_button_pos().normalized() * boundary - radius)
+
+			ongoing_drag = event.get_index()
+
+	if event is InputEventScreenTouch and !event.is_pressed() and event.get_index() == ongoing_drag:
+		ongoing_drag = -1
+
+func get_value():
+	if get_button_pos().length() > threshold:
+		return get_button_pos().normalized()
+	return Vector2(0, 0)
+
+
+func _on_TouchStartDelayTimer_timeout() -> void:
+	_enabled = true
+"
+
+[sub_resource type="CanvasItemMaterial" id=6]
+
+[node name="Player" type="RigidBody2D"]
+z_index = 2
+collision_layer = 2
+collision_mask = 21
+mode = 2
+gravity_scale = 0.0
+contacts_reported = 1
+contact_monitor = true
+linear_damp = 1.0
+script = SubResource( 1 )
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+frames = SubResource( 2 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PoolVector2Array( 0.25, -36.15, 46.25, 9.85, 0.25, 35.85, -46.75, 11.85 )
+
+[node name="DamageParticles" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 128
+lifetime = 0.5
+one_shot = true
+preprocess = 0.5
+randomness = 1.0
+lifetime_randomness = 0.5
+emission_shape = 1
+emission_sphere_radius = 38.0
+direction = Vector2( 0, 0 )
+spread = 30.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 32.0
+initial_velocity_random = 0.25
+angular_velocity = 0.5
+angular_velocity_random = 0.25
+linear_accel = 1.0
+tangential_accel = 0.75
+scale_amount = 2.0
+color = Color( 0.584314, 0.0117647, 0.0117647, 1 )
+hue_variation = 0.05
+hue_variation_random = 0.5
+
+[node name="CollectSound" type="AudioStreamPlayer" parent="."]
+pause_mode = 1
+stream = ExtResource( 2 )
+
+[node name="TouchScreenButton" type="TouchScreenButton" parent="."]
+position = Vector2( -64, -64 )
+shape = SubResource( 4 )
+script = SubResource( 5 )
+
+[node name="TouchStartDelayTimer" type="Timer" parent="TouchScreenButton"]
+one_shot = true
+autostart = true
+
+[node name="TouchIndicator" type="Sprite" parent="."]
+visible = false
+modulate = Color( 1, 1, 1, 0.25098 )
+material = SubResource( 6 )
+position = Vector2( 0, -18 )
+scale = Vector2( 1.5, 1.5 )
+texture = ExtResource( 3 )
+[connection signal="body_entered" from="." to="." method="_on_Node2D_body_entered"]
+[connection signal="body_shape_entered" from="." to="." method="_on_Node2D_body_shape_entered"]
+[connection signal="pressed" from="TouchScreenButton" to="." method="_on_TouchScreenButton_pressed"]
+[connection signal="released" from="TouchScreenButton" to="." method="_on_TouchScreenButton_released"]
+[connection signal="timeout" from="TouchScreenButton/TouchStartDelayTimer" to="TouchScreenButton" method="_on_TouchStartDelayTimer_timeout"]

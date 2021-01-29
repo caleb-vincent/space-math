@@ -1,0 +1,79 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Menu.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Dodge/DodgeOptions.tscn" type="PackedScene" id=2]
+[ext_resource path="res://assets/black.png" type="Texture" id=4]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+const Dodge = preload(\"res://Dodge/Dodge.tscn\")
+
+var game = null
+
+func _ready() -> void:
+	pass
+
+
+
+func _process(delta):
+	if game != null &&  Input.is_action_just_released(\"game_pause\"):
+		game.get_tree().paused = !game.get_tree().paused
+
+
+
+func _on_Menu_astroidDodge() -> void:
+	$Menu.visible = false
+	$Background.visible = false
+	var dodge = Dodge.instance()
+	game = dodge
+	dodge.connect(\"gameOver\", self, \"_on_gameOver\")
+	dodge.dodgeOptions = $DodgeOptions
+	add_child(dodge)
+
+
+func _on_Menu_astroidDodgeOptions() -> void:
+	$Menu.visible = false
+	$DodgeOptions.visible = true
+
+
+
+func _on_gameOver() -> void:
+	game.queue_free()
+	game = null
+	$Menu.visible = true
+	$Background.visible = true
+
+func _on_difficultyChange(difficulty : int) -> void:
+	Options.selectedDifficulty = difficulty
+
+
+
+func _on_DodgeOptions_hide() -> void:
+	$Menu.visible = true
+"
+
+[node name="Main" type="Node"]
+pause_mode = 2
+script = SubResource( 1 )
+
+[node name="Background" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 4 )
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Menu" parent="." instance=ExtResource( 1 )]
+margin_left = 1.0
+margin_right = 1.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="DodgeOptions" parent="." instance=ExtResource( 2 )]
+visible = false
+[connection signal="astroidDodge" from="Menu" to="." method="_on_Menu_astroidDodge"]
+[connection signal="astroidDodgeOptions" from="Menu" to="." method="_on_Menu_astroidDodgeOptions"]
+[connection signal="hide" from="DodgeOptions" to="." method="_on_DodgeOptions_hide"]

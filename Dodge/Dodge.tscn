@@ -1,0 +1,325 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Dodge/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Dodge/Hud.tscn" type="PackedScene" id=2]
+[ext_resource path="res://assets/black.png" type="Texture" id=3]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+const SPAWN_MARGIN = 16
+const SPEED_SCALING = 2
+const BONUS_VALUE = 5
+
+const Bonus = preload(\"Bonus.tscn\")
+const Obstacle = preload(\"Obstacle.tscn\")
+const Target = preload(\"Target.tscn\")
+const DodgeOptions = preload(\"DodgeOptions.gd\")
+
+signal gameOver
+
+var rng = RandomNumberGenerator.new()
+var dodgeOptions : DodgeOptions = null
+
+var answer = -1
+
+var _spawnedAnswers = 0
+var _failedAnswerSpawns = 0
+var _speedEntityCount = 0
+var _speedTotal : float
+
+
+func _ready() -> void:
+	rng.randomize()
+	$BonusSpawnTimer.wait_time /= _difficultyScale()
+	$ObstacleSpawnTimer.wait_time /= _difficultyScale()
+	$TargetSpawnTimer.wait_time /= _difficultyScale()
+	$Player.position = Vector2(get_viewport().size.x/2, get_viewport().size.y/2)
+	$Player.connect(\"bonus\", self, \"_on_Player_bonus\")
+	$Player.connect(\"goal\", self, \"_on_Player_goal\")
+	$Player.connect(\"hit\", self, \"_on_Player_hit\")
+	if Options.selectedDifficulty == Options.Difficulty.EASY:
+		$Player.linear_damp *= 2
+	elif Options.selectedDifficulty == Options.Difficulty.HARD:
+		$Player.linear_damp /= 2
+	$Hud.showStartSplash()
+	_newQuestion()
+	for n in range(2):
+		_addObstacle()
+	for n in range(2):
+		_addTarget()
+	assert(dodgeOptions != null)
+
+func _process(delta):
+	if Input.is_action_pressed(\"game_escape\"):
+		emit_signal(\"gameOver\")
+
+
+func _addObstacle() -> void:
+	var mob = Obstacle.instance()
+	add_child_below_node($Player, mob)
+	mob.position = Vector2(rng.randf_range(-1 * SPAWN_MARGIN, get_viewport().size.x + SPAWN_MARGIN), -32)
+	mob.linear_velocity = _scaleVelocity(mob.linear_velocity)
+
+
+func _addTarget() -> void:
+	var mob = Target.instance()
+
+	var targetValue = answer
+	if _spawnedAnswers > 0 || rng.randi_range(-3, _failedAnswerSpawns) < 0:
+		targetValue = rng.randi_range(0,dodgeOptions.maxAnswer)
+		if _spawnedAnswers <= 0:
+			_failedAnswerSpawns += 1
+
+	if targetValue == answer:
+		_failedAnswerSpawns = 0
+		_setTargetActive(mob, true)
+	else:
+		_setTargetInactive(mob, true)
+
+	mob.value = targetValue
+	mob.position = Vector2(rng.randf_range(SPAWN_MARGIN, get_viewport().size.x - SPAWN_MARGIN), -64)
+	mob.linear_velocity = _scaleVelocity(mob.linear_velocity)
+
+	add_child_below_node($Player, mob)
+	mob.add_to_group(\"targets\")
+
+
+func _addBonus() -> void:
+	var bonus = Bonus.instance()
+	bonus.position = Vector2(rng.randf_range(SPAWN_MARGIN, get_viewport().size.x - SPAWN_MARGIN), -64)
+	bonus.linear_velocity = _scaleVelocity(bonus.linear_velocity)
+	add_child_below_node($Player, bonus)
+
+
+func onAnswerGone() -> void:
+	_spawnedAnswers -= 1
+
+
+func _on_Player_bonus() -> void:
+	$Hud.health += BONUS_VALUE
+
+
+func _on_Player_goal() -> void:
+	_newQuestion()
+	$Hud.score += 1
+
+
+func _on_Player_hit(d : float) -> void:
+	$Hud.health -= sqrt(d)
+	if $Hud.health <= 0:
+		$Player.queue_free()
+		$Hud.gameOver()
+		$EndSplashTimer.start()
+
+
+func _newQuestion() ->void :
+	if dodgeOptions.selectedGameType == DodgeOptions.GameType.ADDITION:
+		_newAdditionQuestion()
+	elif dodgeOptions.selectedGameType == DodgeOptions.GameType.SUBTRACTION:
+		_newSubtractionQuestion()
+	elif dodgeOptions.selectedGameType == DodgeOptions.GameType.FACT_FAMILIES:
+		_newFactFamilyQuestion()
+	elif dodgeOptions.selectedGameType == DodgeOptions.GameType.MULTIPLICATION:
+		_newMultiplicationQuestion()
+	elif dodgeOptions.selectedGameType == DodgeOptions.GameType.DIVISION:
+		_newDivisionQuestion()
+
+	for target in get_tree().get_nodes_in_group(\"targets\"):
+		if target.value == answer:
+			_setTargetActive(target)
+		else:
+			_setTargetInactive(target)
+
+
+func _newAdditionQuestion() -> void:
+	var l = rng.randi_range(0, dodgeOptions.maxAnswer)
+	var r = rng.randi_range(0, dodgeOptions.maxAnswer - l)
+	answer = l + r
+	$Hud.question = str(l) + \" + \" + str(r) + \" = ?\"
+
+
+func _newSubtractionQuestion() -> void:
+	var l = rng.randi_range(0, dodgeOptions.maxAnswer)
+	var r = rng.randi_range(l, 0)
+	answer = l - r
+	$Hud.question = str(l) + \" - \" + str(r) + \" = ?\"
+
+
+func _newFactFamilyQuestion() -> void:
+	answer = rng.randi_range(0, dodgeOptions.maxAnswer)
+	var b = rng.randi_range(0, answer)
+
+	if rng.randi_range(0,1) > 0:
+		if rng.randi_range(0,1) > 0:
+			var c = answer - b
+			$Hud.question = \"? - \" + str(b) + \" = \" + str(c)
+		else:
+			b = rng.randi_range(answer, dodgeOptions.maxAnswer)
+			var c = b - answer
+			$Hud.question = str(b) + \" - ? \" + \" = \" + str(c)
+	else:
+		var c = b + answer
+		if rng.randi_range(0,1) > 0:
+			$Hud.question = \"? + \" + str(b) + \" = \" + str(c)
+		else:
+			$Hud.question = str(b) + \" + ? = \" + str(c)
+
+
+
+
+
+func _newMultiplicationQuestion() -> void:
+	var l = rng.randi_range(0,sqrt(dodgeOptions.maxAnswer))
+	var r = rng.randi_range(0, sqrt(dodgeOptions.maxAnswer))
+	answer = l * r
+	$Hud.question = str(l) + \" * \" + str(r) + \" = ?\"
+
+
+func _newDivisionQuestion() -> void:
+	answer = rng.randi_range(0,sqrt(dodgeOptions.maxAnswer))
+	var r = rng.randi_range(1, sqrt(dodgeOptions.maxAnswer))
+	var l = answer * r
+	$Hud.question = str(l) + \" / \" + str(r) + \" = ?\"
+
+
+func _setTargetActive(target : RigidBody2D, force : bool = false) -> void:
+	if !target.isAnswer || force:
+		target.connect(\"tree_exited\", self, \"onAnswerGone\")
+		target.isAnswer = true
+		_spawnedAnswers += 1
+
+
+func _setTargetInactive(target : RigidBody2D, force : bool = false) -> void:
+	if target.isAnswer || force:
+		disconnect(\"tree_exited\", get_parent(), \"onAnswerGone\")
+		target.isAnswer = false
+		_spawnedAnswers -= 1
+
+
+func _scaleVelocity(v : Vector2) -> Vector2:
+	var retV = v * rng.randf_range(0.8, 1.2)
+	_speedEntityCount += 1
+	if $Hud.score > 0:
+		  retV.y += SPEED_SCALING * $Hud.score * _difficultyScale()
+	_speedTotal += retV.y
+	if OS.is_debug_build():
+		print( _speedTotal / _speedEntityCount )
+	return retV
+
+
+func _difficultyScale() -> float:
+	if Options.selectedDifficulty == Options.Difficulty.EASY:
+		return 0.75
+	elif Options.selectedDifficulty == Options.Difficulty.HARD:
+		return 1.25
+	return 1.0
+
+
+func _on_EndStartSplash() -> void:
+	$Player.visible = true
+	$Player.sleeping = false
+	$Hud.hideStartSplash()
+
+
+func _on_EndSplashOver() -> void:
+	emit_signal(\"gameOver\")
+"
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends ParallaxBackground
+
+
+func _process(delta):
+	scroll_offset.y +=  50 * delta
+"
+
+[node name="Dodge" type="Node"]
+pause_mode = 1
+script = SubResource( 1 )
+
+[node name="BonusSpawnTimer" type="Timer" parent="."]
+wait_time = 8.0
+autostart = true
+
+[node name="ObstacleSpawnTimer" type="Timer" parent="."]
+autostart = true
+
+[node name="TargetSpawnTimer" type="Timer" parent="."]
+wait_time = 3.0
+autostart = true
+
+[node name="EndSplashTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="StartingSplashTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+autostart = true
+
+[node name="Background" type="ParallaxBackground" parent="."]
+scroll_ignore_camera_zoom = true
+script = SubResource( 2 )
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="Background"]
+z_index = -5
+z_as_relative = false
+motion_scale = Vector2( 0, 1 )
+motion_mirroring = Vector2( 256, 256 )
+
+[node name="Sprite" type="Sprite" parent="Background/ParallaxLayer"]
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite9" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 0, 1024 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite2" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 0, 512 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite3" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 512, 0 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite8" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 512, 1024 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite4" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 512, 512 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite6" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 1024, 0 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite7" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 1024, 1024 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Sprite5" type="Sprite" parent="Background/ParallaxLayer"]
+position = Vector2( 1024, 512 )
+texture = ExtResource( 3 )
+centered = false
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+visible = false
+sleeping = true
+linear_damp = 2.0
+
+[node name="Hud" parent="." instance=ExtResource( 2 )]
+[connection signal="timeout" from="BonusSpawnTimer" to="." method="_addBonus"]
+[connection signal="timeout" from="ObstacleSpawnTimer" to="." method="_addObstacle"]
+[connection signal="timeout" from="TargetSpawnTimer" to="." method="_addTarget"]
+[connection signal="timeout" from="EndSplashTimer" to="." method="_on_EndSplashOver"]
+[connection signal="timeout" from="StartingSplashTimer" to="." method="_on_EndStartSplash"]

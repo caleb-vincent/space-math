@@ -1,0 +1,68 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://assets/meteorBrown_big1.png" type="Texture" id=2]
+[ext_resource path="res://assets/meteorBrown_big4.png" type="Texture" id=3]
+[ext_resource path="res://assets/meteorBrown_big3.png" type="Texture" id=4]
+
+[sub_resource type="GDScript" id=66]
+script/source = "extends RigidBody2D
+
+
+var rng = RandomNumberGenerator.new()
+
+
+var _types = [\"type1\", \"type2\", \"type3\"]
+
+
+func _ready() -> void:
+	rng.randomize()
+	angular_velocity = rng.randf_range(-1,1)
+	$Sprite.animation = _types[rng.randi_range(0, _types.size() - 1)]
+
+func _on_VisibilityNotifier2D_screen_exited() -> void:
+	queue_free()
+"
+
+[sub_resource type="CircleShape2D" id=67]
+radius = 46.0
+
+[sub_resource type="SpriteFrames" id=68]
+animations = [ {
+"frames": [ ExtResource( 2 ) ],
+"loop": true,
+"name": "type3",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 3 ) ],
+"loop": true,
+"name": "type1",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 4 ) ],
+"loop": true,
+"name": "type2",
+"speed": 5.0
+} ]
+
+[node name="Obstacle" type="RigidBody2D"]
+collision_mask = 15
+mass = 0.00102041
+gravity_scale = 0.0
+contact_monitor = true
+linear_velocity = Vector2( 0, 60 )
+linear_damp = 0.0
+angular_damp = 0.0
+script = SubResource( 66 )
+
+[node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
+scale = Vector2( 4, 4 )
+rect = Rect2( -16, -16, 32, 32 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource( 67 )
+
+[node name="Sprite" type="AnimatedSprite" parent="."]
+position = Vector2( 1, -4 )
+frames = SubResource( 68 )
+animation = "type2"
+[connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]
