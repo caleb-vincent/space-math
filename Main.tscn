@@ -8,6 +8,7 @@
 script/source = "extends Node
 
 const Dodge = preload(\"res://Dodge/Dodge.tscn\")
+const Cargo = preload(\"res://Cargo/Cargo.tscn\")
 
 var game = null
 
@@ -19,7 +20,8 @@ func _ready() -> void:
 func _process(delta):
 	if game != null &&  Input.is_action_just_released(\"game_pause\"):
 		game.get_tree().paused = !game.get_tree().paused
-
+	elif game != null &&  Input.is_action_pressed(\"game_escape\"):
+		_on_gameOver()
 
 
 func _on_Menu_astroidDodge() -> void:
@@ -44,6 +46,7 @@ func _on_gameOver() -> void:
 	$Menu.visible = true
 	$Background.visible = true
 
+
 func _on_difficultyChange(difficulty : int) -> void:
 	Options.selectedDifficulty = difficulty
 
@@ -51,6 +54,15 @@ func _on_difficultyChange(difficulty : int) -> void:
 
 func _on_DodgeOptions_hide() -> void:
 	$Menu.visible = true
+
+
+func _on_Menu_cargoPlacing() -> void:
+	$Menu.visible = false
+	$Background.visible = false
+	var cargo = Cargo.instance()
+	game = cargo
+	cargo.connect(\"gameOver\", self, \"_on_gameOver\")
+	add_child(cargo)
 "
 
 [node name="Main" type="Node"]
@@ -61,6 +73,7 @@ script = SubResource( 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 texture = ExtResource( 4 )
+expand = true
 stretch_mode = 2
 __meta__ = {
 "_edit_use_anchors_": false
@@ -76,4 +89,5 @@ size_flags_vertical = 0
 visible = false
 [connection signal="astroidDodge" from="Menu" to="." method="_on_Menu_astroidDodge"]
 [connection signal="astroidDodgeOptions" from="Menu" to="." method="_on_Menu_astroidDodgeOptions"]
+[connection signal="cargoPlacing" from="Menu" to="." method="_on_Menu_cargoPlacing"]
 [connection signal="hide" from="DodgeOptions" to="." method="_on_DodgeOptions_hide"]

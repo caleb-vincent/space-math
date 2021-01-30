@@ -22,6 +22,7 @@ config/icon="res://icon.png"
 [autoload]
 
 Options="*res://Options.gd"
+Data="*res://Data.gd"
 
 [debug]
 

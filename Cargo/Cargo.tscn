@@ -1,0 +1,82 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://assets/black.png" type="Texture" id=1]
+[ext_resource path="res://Cargo/Controls.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Cargo/CargoHud.tscn" type="PackedScene" id=5]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+var rng = RandomNumberGenerator.new()
+
+signal gameOver
+
+
+func _ready() -> void:
+	rng.randomize()
+	$Hud.shipName = \"M.S.S. \" + Data.ShipNames[rng.randi_range(0, Data.ShipNames.size() - 1)]
+	$Hud.loadCount = 0
+	$Hud.loadTotal = 888
+	$RoundTimer.start()
+
+
+func _process(delta: float) -> void:
+	$Hud.time = $RoundTimer.time_left
+
+
+func _on_Control_onesPlace() -> void:
+	_updateLoadCount(1)
+
+
+func _on_Control_tensPlace() -> void:
+	_updateLoadCount(10)
+
+
+func _on_Control_hundredsPlace() -> void:
+	_updateLoadCount(100)
+
+
+func _updateLoadCount(add : int) -> void:
+	$Hud.loadCount += add
+	if $Hud.loadCount > $Hud.loadTotal:
+		$Control.visible = false
+		$Hud.gameOver()
+		$GameOverSplashTimer.start()
+
+
+func _on_GameOverSplashTimer_timeout() -> void:
+	emit_signal(\"gameOver\")
+"
+
+[node name="Cargo" type="Node"]
+script = SubResource( 1 )
+
+[node name="RoundTimer" type="Timer" parent="."]
+wait_time = 20.0
+one_shot = true
+
+[node name="GameOverSplashTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="TextureRect" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Hud" parent="." instance=ExtResource( 5 )]
+
+[node name="Control" parent="." instance=ExtResource( 2 )]
+margin_top = 528.0
+margin_bottom = 0.0
+[connection signal="timeout" from="GameOverSplashTimer" to="." method="_on_GameOverSplashTimer_timeout"]
+[connection signal="hundredsPlace" from="Control" to="." method="_on_Control_hundredsPlace"]
+[connection signal="onesPlace" from="Control" to="." method="_on_Control_onesPlace"]
+[connection signal="tensPlace" from="Control" to="." method="_on_Control_tensPlace"]
