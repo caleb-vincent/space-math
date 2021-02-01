@@ -9,6 +9,7 @@ script/source = "extends Node
 
 const Dodge = preload(\"res://Dodge/Dodge.tscn\")
 const Cargo = preload(\"res://Cargo/Cargo.tscn\")
+const Credits = preload(\"res://Credits.tscn\")
 
 var game = null
 
@@ -63,6 +64,15 @@ func _on_Menu_cargoPlacing() -> void:
 	game = cargo
 	cargo.connect(\"gameOver\", self, \"_on_gameOver\")
 	add_child(cargo)
+
+
+func _on_Menu_credits() -> void:
+	$Menu.visible = false
+	$Background.visible = false
+	var credits = Credits.instance()
+	game = credits
+	credits.connect(\"gameOver\", self, \"_on_gameOver\")
+	add_child(credits)
 "
 
 [node name="Main" type="Node"]
@@ -81,7 +91,9 @@ __meta__ = {
 
 [node name="Menu" parent="." instance=ExtResource( 1 )]
 margin_left = 1.0
+margin_top = 1.16632
 margin_right = 1.0
+margin_bottom = 1.16632
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
@@ -90,4 +102,6 @@ visible = false
 [connection signal="astroidDodge" from="Menu" to="." method="_on_Menu_astroidDodge"]
 [connection signal="astroidDodgeOptions" from="Menu" to="." method="_on_Menu_astroidDodgeOptions"]
 [connection signal="cargoPlacing" from="Menu" to="." method="_on_Menu_cargoPlacing"]
+[connection signal="difficultSelected" from="Menu" to="." method="_on_difficultyChange"]
+[connection signal="rollCredits" from="Menu" to="." method="_on_Menu_credits"]
 [connection signal="hide" from="DodgeOptions" to="." method="_on_DodgeOptions_hide"]

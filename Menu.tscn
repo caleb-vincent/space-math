@@ -11,7 +11,7 @@ signal astroidDodge
 signal astroidDodgeOptions
 signal cargoPlacing
 signal difficultSelected
-
+signal rollCredits
 
 func _on_Dodge_pressed() -> void:
 	emit_signal(\"astroidDodge\")
@@ -32,6 +32,10 @@ func _on_OptionButton_item_selected(id: int) -> void:
 
 func _on_DodgeOptionsButton_pressed() -> void:
 	emit_signal(\"astroidDodgeOptions\")
+
+
+func _on_CreditsButton_pressed() -> void:
+	emit_signal(\"rollCredits\")
 "
 
 [node name="Menu" type="Control"]
@@ -52,48 +56,55 @@ margin_left = -244.5
 margin_top = -47.0
 margin_right = 244.5
 margin_bottom = 47.0
+custom_constants/separation = 10
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer2"]
 margin_right = 489.0
-margin_bottom = 94.0
+margin_bottom = 92.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="DodgeButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-margin_right = 347.0
-margin_bottom = 94.0
+margin_right = 323.0
+margin_bottom = 92.0
+rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Astroid Dodge"
 icon = ExtResource( 1 )
+expand_icon = true
 
 [node name="DodgeOptionsButton" type="Button" parent="VBoxContainer2/HBoxContainer"]
-margin_left = 351.0
+margin_left = 327.0
 margin_right = 489.0
-margin_bottom = 94.0
+margin_bottom = 92.0
+rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
+size_flags_vertical = 5
 size_flags_stretch_ratio = 0.5
 text = "OPTIONS"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer2"]
-margin_top = 98.0
+margin_top = 102.0
 margin_right = 489.0
-margin_bottom = 200.0
+margin_bottom = 194.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="CargoButton" type="Button" parent="VBoxContainer2/HBoxContainer2"]
 margin_right = 489.0
-margin_bottom = 102.0
+margin_bottom = 92.0
+rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Cargo Placing"
 icon = ExtResource( 3 )
+expand_icon = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchor_left = 0.5
@@ -101,7 +112,7 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 margin_left = -88.0
-margin_top = -68.0
+margin_top = -78.0
 margin_right = 88.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -117,7 +128,7 @@ text = "Difficulty"
 [node name="OptionButton" type="OptionButton" parent="VBoxContainer"]
 margin_top = 31.0
 margin_right = 176.0
-margin_bottom = 68.0
+margin_bottom = 78.0
 text = "Normal"
 expand_icon = true
 items = [ "Easy", null, false, 0, null, "Normal", null, false, 1, null, "Hard", null, false, 2, null ]
@@ -125,7 +136,18 @@ selected = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="CreditsButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -176.0
+margin_bottom = 37.0
+text = "Credits"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/DodgeButton" to="." method="_on_Dodge_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/DodgeOptionsButton" to="." method="_on_DodgeOptionsButton_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer2/CargoButton" to="." method="_on_Cargo_pressed"]
 [connection signal="item_selected" from="VBoxContainer/OptionButton" to="." method="_on_OptionButton_item_selected"]
+[connection signal="pressed" from="CreditsButton" to="." method="_on_CreditsButton_pressed"]

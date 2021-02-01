@@ -1,8 +1,7 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://assets/glassPanel.png" type="Texture" id=2]
+[ext_resource path="res://assets/glassButton_close.png" type="Texture" id=1]
 [ext_resource path="res://assets/theme.tres" type="Theme" id=4]
-[ext_resource path="res://assets/glassPanel_corners.png" type="Texture" id=5]
 [ext_resource path="res://assets/kenvector_future.ttf" type="DynamicFontData" id=6]
 
 [sub_resource type="GDScript" id=1]
@@ -12,6 +11,7 @@ var score : int = 0 setget _set_score, _get_score
 var question : String setget _set_question, _get_question
 var health : int = 100 setget _set_health, _get_health
 
+signal gameOver
 
 func _ready() -> void:
 	_set_score(score)
@@ -34,27 +34,32 @@ func gameOver() -> void:
 	$MessageContainer/GameOver.visible = true
 
 func _set_score(s : int) -> void:
-	$StatusBar/Score.text = str(s)
+	$StatusBar/Panel/Score.text = str(s)
 
 
 func _get_score() -> int :
-	return int($StatusBar/Score.text)
+	return int($StatusBar/Panel/Score.text)
 
 
 func _set_question(q : String) -> void:
-	$StatusBar/Goal.text = q
+	$StatusBar/Panel2/Goal.text = q
 
 
 func _get_question() -> String:
-	return $StatusBar/Goal.text
+	return $StatusBar/Panel2/Goal.text
 
 
 func _set_health(h : int) -> void:
-	$StatusBar/NinePatchRect/Health.value = h
+	$StatusBar/Panel3/Health.value = h
 
 
 func _get_health() -> int:
-	return int($StatusBar/NinePatchRect/Health.value)
+	return int($StatusBar/Panel3/Health.value)
+
+
+func _on_ExitButton_pressed() -> void:
+	emit_signal(\"gameOver\")
+
 "
 
 [sub_resource type="StyleBoxFlat" id=2]
@@ -92,22 +97,22 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="NinePatchRect" type="NinePatchRect" parent="StatusBar"]
-margin_right = 424.0
+[node name="ExitButton" type="TextureButton" parent="StatusBar"]
+margin_right = 32.0
+margin_bottom = 32.0
+action_mode = 0
+texture_normal = ExtResource( 1 )
+stretch_mode = 4
+
+[node name="Panel3" type="Panel" parent="StatusBar"]
+margin_left = 36.0
+margin_right = 448.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 32, 32 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
-texture = ExtResource( 2 )
-patch_margin_left = 16
-patch_margin_top = 8
-patch_margin_right = 8
-patch_margin_bottom = 8
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Health" type="ProgressBar" parent="StatusBar/NinePatchRect"]
+[node name="Health" type="ProgressBar" parent="StatusBar/Panel3"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -123,10 +128,17 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Goal" type="Label" parent="StatusBar"]
-margin_left = 428.0
-margin_right = 852.0
+[node name="Panel2" type="Panel" parent="StatusBar"]
+margin_left = 452.0
+margin_right = 864.0
 margin_bottom = 32.0
+rect_min_size = Vector2( 32, 32 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Goal" type="Label" parent="StatusBar/Panel2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 align = 1
@@ -135,44 +147,19 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="NinePatchRect" type="NinePatchRect" parent="StatusBar/Goal"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 0.950073
-margin_top = -0.0499992
-margin_right = 0.950073
-margin_bottom = -0.0499992
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture = ExtResource( 2 )
-patch_margin_left = 8
-patch_margin_top = 8
-patch_margin_right = 8
-patch_margin_bottom = 8
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Score" type="Label" parent="StatusBar"]
-margin_left = 856.0
+[node name="Panel" type="Panel" parent="StatusBar"]
+margin_left = 868.0
 margin_right = 1280.0
 margin_bottom = 32.0
+size_flags_horizontal = 3
+
+[node name="Score" type="Label" parent="StatusBar/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 5
 align = 1
 valign = 1
-
-[node name="NinePatchRect" type="NinePatchRect" parent="StatusBar/Score"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-rect_min_size = Vector2( 32, 32 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture = ExtResource( 2 )
-patch_margin_left = 8
-patch_margin_top = 8
-patch_margin_right = 16
-patch_margin_bottom = 8
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -180,16 +167,23 @@ __meta__ = {
 [node name="MessageContainer" type="CenterContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="GameOver" type="Label" parent="MessageContainer"]
-visible = false
-margin_left = 423.0
-margin_top = 324.0
-margin_right = 857.0
-margin_bottom = 396.0
+[node name="GameOver" type="PopupPanel" parent="MessageContainer"]
+visible = true
+margin_left = 407.0
+margin_top = 308.0
+margin_right = 873.0
+margin_bottom = 412.0
+
+[node name="Text" type="Label" parent="MessageContainer/GameOver"]
+margin_left = 16.0
+margin_top = 16.0
+margin_right = 450.0
+margin_bottom = 88.0
 custom_fonts/font = SubResource( 4 )
 text = "GAME OVER"
 align = 1
@@ -199,25 +193,17 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="NinePatchRect" type="NinePatchRect" parent="MessageContainer/GameOver"]
-margin_left = -16.0
-margin_top = -8.0
-margin_right = 16.0
-margin_bottom = 24.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture = ExtResource( 5 )
-patch_margin_left = 16
-patch_margin_top = 16
-patch_margin_right = 16
-patch_margin_bottom = 16
+[node name="StartingMessage" type="PopupPanel" parent="MessageContainer"]
+margin_left = 432.0
+margin_top = 233.0
+margin_right = 847.0
+margin_bottom = 487.0
 
-[node name="StartingMessage" type="Label" parent="MessageContainer"]
-visible = false
-margin_left = 448.0
-margin_top = 249.0
-margin_right = 831.0
-margin_bottom = 471.0
+[node name="Text" type="Label" parent="MessageContainer/StartingMessage"]
+margin_left = 16.0
+margin_top = 16.0
+margin_right = 399.0
+margin_bottom = 238.0
 custom_fonts/font = SubResource( 4 )
 text = "ENTERING
 ASTEROID 
@@ -228,21 +214,4 @@ uppercase = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="NinePatchRect" type="NinePatchRect" parent="MessageContainer/StartingMessage"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -16.0
-margin_top = -8.0
-margin_right = 8.0
-margin_bottom = 8.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture = ExtResource( 5 )
-patch_margin_left = 16
-patch_margin_top = 16
-patch_margin_right = 16
-patch_margin_bottom = 16
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[connection signal="pressed" from="StatusBar/ExitButton" to="." method="_on_ExitButton_pressed"]

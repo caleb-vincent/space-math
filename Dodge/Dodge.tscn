@@ -319,3 +319,4 @@ linear_damp = 2.0
 [connection signal="timeout" from="TargetSpawnTimer" to="." method="_addTarget"]
 [connection signal="timeout" from="EndSplashTimer" to="." method="_on_EndSplashOver"]
 [connection signal="timeout" from="StartingSplashTimer" to="." method="_on_EndStartSplash"]
+[connection signal="gameOver" from="Hud" to="." method="_on_EndSplashOver"]

@@ -21,9 +21,9 @@ __meta__ = {
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
 margin_left = 541.0
-margin_top = 290.0
+margin_top = 287.0
 margin_right = 739.0
-margin_bottom = 430.0
+margin_bottom = 433.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -36,7 +36,7 @@ text = "Game Type"
 [node name="GameTypeSelection" type="OptionButton" parent="CenterContainer/VBoxContainer"]
 margin_top = 31.0
 margin_right = 198.0
-margin_bottom = 68.0
+margin_bottom = 74.0
 size_flags_horizontal = 3
 toggle_mode = false
 text = "Addition"
@@ -48,16 +48,27 @@ __meta__ = {
 }
 
 [node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
-margin_top = 72.0
+margin_top = 78.0
 margin_right = 198.0
-margin_bottom = 99.0
+margin_bottom = 105.0
 text = "Max Answer"
 
 [node name="MaxAnswerSelection" type="SpinBox" parent="CenterContainer/VBoxContainer"]
-margin_top = 103.0
+margin_top = 109.0
 margin_right = 198.0
-margin_bottom = 140.0
+margin_bottom = 146.0
 value = 10.0
+
+[node name="AntiTouchLabel" type="Label" parent="CenterContainer/VBoxContainer/MaxAnswerSelection"]
+margin_left = 123.0
+margin_right = 180.0
+margin_bottom = 37.0
+mouse_filter = 0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="ExitButton" type="Button" parent="."]
 anchor_left = 0.5
@@ -65,7 +76,7 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 margin_left = -74.0
-margin_top = -37.0
+margin_top = -47.0
 margin_right = 74.0
 text = "OK"
 __meta__ = {
