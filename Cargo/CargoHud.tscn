@@ -1,11 +1,13 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://assets/PanelStyle_Normal.tres" type="StyleBox" id=1]
 [ext_resource path="res://assets/theme.tres" type="Theme" id=2]
 [ext_resource path="res://assets/kenvector_future.ttf" type="DynamicFontData" id=3]
+[ext_resource path="res://assets/glassButton_close.png" type="Texture" id=4]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Control
+
+signal gameOver
 
 export var shipName : String = \"M.S.S. Al-Khwārizmī\" setget _setShipName
 export var time = 0.0 setget _setTime
@@ -43,6 +45,10 @@ func _setTotal(total : int) -> void:
 
 func _updateLoading() -> void:
 	$StatusBar/Loading/Label.text = \"Loaded: \" + \"%3d\" % [loadCount] + \" of \" + \"%3d\" % [loadTotal]
+
+
+func _on_gameOver() -> void:
+	emit_signal(\"gameOver\")
 "
 
 [sub_resource type="DynamicFont" id=2]
@@ -60,19 +66,27 @@ __meta__ = {
 
 [node name="StatusBar" type="HBoxContainer" parent="."]
 anchor_right = 1.0
-rect_min_size = Vector2( 0, 48 )
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
 size_flags_horizontal = 3
 alignment = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="ExitButton" type="TextureButton" parent="StatusBar"]
+margin_right = 32.0
+margin_bottom = 32.0
+size_flags_vertical = 3
+texture_normal = ExtResource( 4 )
+stretch_mode = 5
+
 [node name="ShipName" type="Panel" parent="StatusBar"]
-margin_right = 424.0
-margin_bottom = 48.0
+margin_left = 36.0
+margin_right = 448.0
+margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/panel = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -89,12 +103,11 @@ __meta__ = {
 }
 
 [node name="TimeRemaining" type="Panel" parent="StatusBar"]
-margin_left = 428.0
-margin_right = 852.0
-margin_bottom = 48.0
+margin_left = 452.0
+margin_right = 864.0
+margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/panel = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -114,12 +127,11 @@ __meta__ = {
 }
 
 [node name="Loading" type="Panel" parent="StatusBar"]
-margin_left = 856.0
+margin_left = 868.0
 margin_right = 1280.0
-margin_bottom = 48.0
+margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/panel = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -135,8 +147,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="GameOver" type="Panel" parent="."]
-visible = false
+[node name="GameOver" type="PopupPanel" parent="."]
+visible = true
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -146,17 +158,15 @@ margin_top = -96.0
 margin_right = 128.0
 margin_bottom = 96.0
 rect_min_size = Vector2( 256, 128 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+rect_scale = Vector2( 0.983207, 0.982283 )
 
 [node name="Label" type="Label" parent="GameOver"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 4.0
-margin_right = 4.0
-margin_bottom = 4.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
 custom_fonts/font = SubResource( 2 )
 text = "GAME
 OVER"
@@ -165,3 +175,4 @@ valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="pressed" from="StatusBar/ExitButton" to="." method="_on_gameOver"]

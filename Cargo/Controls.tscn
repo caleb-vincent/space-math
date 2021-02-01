@@ -44,8 +44,11 @@ size_flags_horizontal = 3
 [node name="TextureRect" type="TextureRect" parent="Ones"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_top = 24.0
+margin_bottom = -24.0
 texture = ExtResource( 5 )
-stretch_mode = 4
+expand = true
+stretch_mode = 6
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -53,9 +56,8 @@ __meta__ = {
 [node name="OnesButton" type="TextureButton" parent="Ones"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 3.0
 margin_top = 3.0
-margin_right = -3.0
+margin_right = -6.0
 margin_bottom = -3.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
