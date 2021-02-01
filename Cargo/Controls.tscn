@@ -1,9 +1,8 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://assets/theme.tres" type="Theme" id=1]
 [ext_resource path="res://assets/cargoBox_ten.png" type="Texture" id=2]
 [ext_resource path="res://assets/cargoBox_hundred.png" type="Texture" id=3]
-[ext_resource path="res://assets/glassBackground.png" type="Texture" id=4]
 [ext_resource path="res://assets/cargoBox.png" type="Texture" id=5]
 
 [sub_resource type="GDScript" id=1]
@@ -36,10 +35,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Ones" type="Panel" parent="."]
+[node name="Ones" type="Button" parent="."]
 margin_right = 424.0
 margin_bottom = 192.0
+focus_mode = 0
 size_flags_horizontal = 3
+shortcut_in_tooltip = false
+action_mode = 0
+enabled_focus_mode = 0
 
 [node name="TextureRect" type="TextureRect" parent="Ones"]
 anchor_right = 1.0
@@ -53,25 +56,15 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="OnesButton" type="TextureButton" parent="Ones"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_top = 3.0
-margin_right = -6.0
-margin_bottom = -3.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture_pressed = ExtResource( 4 )
-expand = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Tens" type="Panel" parent="."]
+[node name="Tens" type="Button" parent="."]
 margin_left = 428.0
 margin_right = 852.0
 margin_bottom = 192.0
+focus_mode = 0
 size_flags_horizontal = 3
+shortcut_in_tooltip = false
+action_mode = 0
+enabled_focus_mode = 0
 
 [node name="TextureRect" type="TextureRect" parent="Tens"]
 anchor_right = 1.0
@@ -82,25 +75,17 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TensButton" type="TextureButton" parent="Tens"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 3.0
-margin_top = 3.0
-margin_right = -3.0
-margin_bottom = -3.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture_pressed = ExtResource( 4 )
-expand = true
-
-[node name="Hundreds" type="Panel" parent="."]
+[node name="HundredsButton" type="Button" parent="."]
 margin_left = 856.0
 margin_right = 1280.0
 margin_bottom = 192.0
+focus_mode = 0
 size_flags_horizontal = 3
+shortcut_in_tooltip = false
+action_mode = 0
+enabled_focus_mode = 0
 
-[node name="TextureRect" type="TextureRect" parent="Hundreds"]
+[node name="TextureRect" type="TextureRect" parent="HundredsButton"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 5
@@ -110,21 +95,6 @@ stretch_mode = 4
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="HundredsButton" type="TextureButton" parent="Hundreds"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 3.0
-margin_top = 3.0
-margin_right = -3.0
-margin_bottom = -3.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture_pressed = ExtResource( 4 )
-expand = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-[connection signal="pressed" from="Ones/OnesButton" to="." method="_onOnesButton"]
-[connection signal="pressed" from="Tens/TensButton" to="." method="_onTensButton"]
-[connection signal="pressed" from="Hundreds/HundredsButton" to="." method="_onHundredsButton"]
+[connection signal="pressed" from="Ones" to="." method="_onOnesButton"]
+[connection signal="pressed" from="Tens" to="." method="_onTensButton"]
+[connection signal="pressed" from="HundredsButton" to="." method="_onHundredsButton"]
