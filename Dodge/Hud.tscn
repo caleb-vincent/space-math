@@ -173,7 +173,6 @@ __meta__ = {
 }
 
 [node name="GameOver" type="PopupPanel" parent="MessageContainer"]
-visible = true
 margin_left = 407.0
 margin_top = 308.0
 margin_right = 873.0
