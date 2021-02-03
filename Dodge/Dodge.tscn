@@ -5,7 +5,7 @@
 [ext_resource path="res://assets/black.png" type="Texture" id=3]
 
 [sub_resource type="GDScript" id=1]
-script/source = "extends Node
+script/source = "extends SubGame
 
 const SPAWN_MARGIN = 16
 const SPEED_SCALING = 2
@@ -16,9 +16,6 @@ const Obstacle = preload(\"Obstacle.tscn\")
 const Target = preload(\"Target.tscn\")
 const DodgeOptions = preload(\"DodgeOptions.gd\")
 
-signal gameOver
-
-var rng = RandomNumberGenerator.new()
 var dodgeOptions : DodgeOptions = null
 
 var answer = -1
@@ -29,8 +26,13 @@ var _speedEntityCount = 0
 var _speedTotal : float
 
 
+################################################################################
+#	Inherited Methods
+################################################################################
+
+
 func _ready() -> void:
-	rng.randomize()
+	_rng.randomize()
 	$BonusSpawnTimer.wait_time /= _difficultyScale()
 	$ObstacleSpawnTimer.wait_time /= _difficultyScale()
 	$TargetSpawnTimer.wait_time /= _difficultyScale()
@@ -51,10 +53,29 @@ func _ready() -> void:
 	assert(dodgeOptions != null)
 
 
+################################################################################
+#	Public Methods
+################################################################################
+
+
+
+
+################################################################################
+#	Private Methods
+################################################################################
+
+
+func _addBonus() -> void:
+	var bonus = Bonus.instance()
+	bonus.position = Vector2(_rng.randf_range(SPAWN_MARGIN, get_viewport().size.x - SPAWN_MARGIN), -64)
+	bonus.linear_velocity = _scaleVelocity(bonus.linear_velocity)
+	add_child_below_node($Player, bonus)
+
+
 func _addObstacle() -> void:
 	var mob = Obstacle.instance()
 	add_child_below_node($Player, mob)
-	mob.position = Vector2(rng.randf_range(-1 * SPAWN_MARGIN, get_viewport().size.x + SPAWN_MARGIN), -32)
+	mob.position = Vector2(_rng.randf_range(-1 * SPAWN_MARGIN, get_viewport().size.x + SPAWN_MARGIN), -32)
 	mob.linear_velocity = _scaleVelocity(mob.linear_velocity)
 
 
@@ -62,8 +83,8 @@ func _addTarget() -> void:
 	var mob = Target.instance()
 
 	var targetValue = answer
-	if _spawnedAnswers > 0 || rng.randi_range(-3, _failedAnswerSpawns) < 0:
-		targetValue = rng.randi_range(0,dodgeOptions.maxAnswer)
+	if _spawnedAnswers > 0 || _rng.randi_range(-3, _failedAnswerSpawns) < 0:
+		targetValue = _rng.randi_range(0,dodgeOptions.maxAnswer)
 		if _spawnedAnswers <= 0:
 			_failedAnswerSpawns += 1
 
@@ -74,39 +95,60 @@ func _addTarget() -> void:
 		_setTargetInactive(mob, true)
 
 	mob.value = targetValue
-	mob.position = Vector2(rng.randf_range(SPAWN_MARGIN, get_viewport().size.x - SPAWN_MARGIN), -64)
+	mob.position = Vector2(_rng.randf_range(SPAWN_MARGIN, get_viewport().size.x - SPAWN_MARGIN), -64)
 	mob.linear_velocity = _scaleVelocity(mob.linear_velocity)
 
 	add_child_below_node($Player, mob)
 	mob.add_to_group(\"targets\")
 
 
-func _addBonus() -> void:
-	var bonus = Bonus.instance()
-	bonus.position = Vector2(rng.randf_range(SPAWN_MARGIN, get_viewport().size.x - SPAWN_MARGIN), -64)
-	bonus.linear_velocity = _scaleVelocity(bonus.linear_velocity)
-	add_child_below_node($Player, bonus)
+func _difficultyScale() -> float:
+	if Options.selectedDifficulty == Options.Difficulty.EASY:
+		return 0.75
+	elif Options.selectedDifficulty == Options.Difficulty.HARD:
+		return 1.25
+	return 1.0
 
 
-func onAnswerGone() -> void:
-	_spawnedAnswers -= 1
+func _newAdditionQuestion() -> void:
+	var l = _rng.randi_range(0, dodgeOptions.maxAnswer)
+	var r = _rng.randi_range(0, dodgeOptions.maxAnswer - l)
+	answer = l + r
+	$Hud.question = str(l) + \" + \" + str(r) + \" = ?\"
 
 
-func _on_Player_bonus() -> void:
-	$Hud.health += BONUS_VALUE
+func _newDivisionQuestion() -> void:
+	answer = _rng.randi_range(0,sqrt(dodgeOptions.maxAnswer))
+	var r = _rng.randi_range(1, sqrt(dodgeOptions.maxAnswer))
+	var l = answer * r
+	$Hud.question = str(l) + \" / \" + str(r) + \" = ?\"
 
 
-func _on_Player_goal() -> void:
-	_newQuestion()
-	$Hud.score += 1
+func _newFactFamilyQuestion() -> void:
+	answer = _rng.randi_range(0, dodgeOptions.maxAnswer)
+	var b = _rng.randi_range(0, answer)
+
+	if _rng.randi_range(0,1) > 0:
+		if _rng.randi_range(0,1) > 0:
+			var c = answer - b
+			$Hud.question = \"? - \" + str(b) + \" = \" + str(c)
+		else:
+			b = _rng.randi_range(answer, dodgeOptions.maxAnswer)
+			var c = b - answer
+			$Hud.question = str(b) + \" - ? \" + \" = \" + str(c)
+	else:
+		var c = b + answer
+		if _rng.randi_range(0,1) > 0:
+			$Hud.question = \"? + \" + str(b) + \" = \" + str(c)
+		else:
+			$Hud.question = str(b) + \" + ? = \" + str(c)
 
 
-func _on_Player_hit(d : float) -> void:
-	$Hud.health -= sqrt(d)
-	if $Hud.health <= 0:
-		$Player.queue_free()
-		$Hud.gameOver()
-		$EndSplashTimer.start()
+func _newMultiplicationQuestion() -> void:
+	var l = _rng.randi_range(0,sqrt(dodgeOptions.maxAnswer))
+	var r = _rng.randi_range(0, sqrt(dodgeOptions.maxAnswer))
+	answer = l * r
+	$Hud.question = str(l) + \" * \" + str(r) + \" = ?\"
 
 
 func _newQuestion() ->void :
@@ -128,73 +170,15 @@ func _newQuestion() ->void :
 			_setTargetInactive(target)
 
 
-func _newAdditionQuestion() -> void:
-	var l = rng.randi_range(0, dodgeOptions.maxAnswer)
-	var r = rng.randi_range(0, dodgeOptions.maxAnswer - l)
-	answer = l + r
-	$Hud.question = str(l) + \" + \" + str(r) + \" = ?\"
-
-
 func _newSubtractionQuestion() -> void:
-	var l = rng.randi_range(0, dodgeOptions.maxAnswer)
-	var r = rng.randi_range(l, 0)
+	var l = _rng.randi_range(0, dodgeOptions.maxAnswer)
+	var r = _rng.randi_range(l, 0)
 	answer = l - r
 	$Hud.question = str(l) + \" - \" + str(r) + \" = ?\"
 
 
-func _newFactFamilyQuestion() -> void:
-	answer = rng.randi_range(0, dodgeOptions.maxAnswer)
-	var b = rng.randi_range(0, answer)
-
-	if rng.randi_range(0,1) > 0:
-		if rng.randi_range(0,1) > 0:
-			var c = answer - b
-			$Hud.question = \"? - \" + str(b) + \" = \" + str(c)
-		else:
-			b = rng.randi_range(answer, dodgeOptions.maxAnswer)
-			var c = b - answer
-			$Hud.question = str(b) + \" - ? \" + \" = \" + str(c)
-	else:
-		var c = b + answer
-		if rng.randi_range(0,1) > 0:
-			$Hud.question = \"? + \" + str(b) + \" = \" + str(c)
-		else:
-			$Hud.question = str(b) + \" + ? = \" + str(c)
-
-
-
-
-
-func _newMultiplicationQuestion() -> void:
-	var l = rng.randi_range(0,sqrt(dodgeOptions.maxAnswer))
-	var r = rng.randi_range(0, sqrt(dodgeOptions.maxAnswer))
-	answer = l * r
-	$Hud.question = str(l) + \" * \" + str(r) + \" = ?\"
-
-
-func _newDivisionQuestion() -> void:
-	answer = rng.randi_range(0,sqrt(dodgeOptions.maxAnswer))
-	var r = rng.randi_range(1, sqrt(dodgeOptions.maxAnswer))
-	var l = answer * r
-	$Hud.question = str(l) + \" / \" + str(r) + \" = ?\"
-
-
-func _setTargetActive(target : RigidBody2D, force : bool = false) -> void:
-	if !target.isAnswer || force:
-		target.connect(\"tree_exited\", self, \"onAnswerGone\")
-		target.isAnswer = true
-		_spawnedAnswers += 1
-
-
-func _setTargetInactive(target : RigidBody2D, force : bool = false) -> void:
-	if target.isAnswer || force:
-		disconnect(\"tree_exited\", get_parent(), \"onAnswerGone\")
-		target.isAnswer = false
-		_spawnedAnswers -= 1
-
-
 func _scaleVelocity(v : Vector2) -> Vector2:
-	var retV = v * rng.randf_range(0.8, 1.2)
+	var retV = v * _rng.randf_range(0.8, 1.2)
 	_speedEntityCount += 1
 	if $Hud.score > 0:
 		  retV.y += SPEED_SCALING * $Hud.score * _difficultyScale()
@@ -204,12 +188,27 @@ func _scaleVelocity(v : Vector2) -> Vector2:
 	return retV
 
 
-func _difficultyScale() -> float:
-	if Options.selectedDifficulty == Options.Difficulty.EASY:
-		return 0.75
-	elif Options.selectedDifficulty == Options.Difficulty.HARD:
-		return 1.25
-	return 1.0
+func _setTargetActive(target : RigidBody2D, force : bool = false) -> void:
+	if !target.isAnswer || force:
+		target.connect(\"tree_exited\", self, \"_onAnswerGone\")
+		target.isAnswer = true
+		_spawnedAnswers += 1
+
+
+func _setTargetInactive(target : RigidBody2D, force : bool = false) -> void:
+	if target.isAnswer || force:
+		disconnect(\"tree_exited\", get_parent(), \"_onAnswerGone\")
+		target.isAnswer = false
+		_spawnedAnswers -= 1
+
+
+################################################################################
+#	Signal Handling
+################################################################################
+
+
+func _onAnswerGone() -> void:
+	_spawnedAnswers -= 1
 
 
 func _on_EndStartSplash() -> void:
@@ -220,6 +219,24 @@ func _on_EndStartSplash() -> void:
 
 func _on_EndSplashOver() -> void:
 	emit_signal(\"gameOver\")
+
+
+func _on_Player_bonus() -> void:
+	$Hud.health += BONUS_VALUE
+
+
+func _on_Player_goal() -> void:
+	_newQuestion()
+	$Hud.score += 1
+
+
+func _on_Player_hit(d : float) -> void:
+	$Hud.health -= sqrt(d)
+	if $Hud.health <= 0:
+		$Player.queue_free()
+		$Hud.gameOver()
+		$EndSplashTimer.start()
+
 "
 
 [sub_resource type="GDScript" id=2]

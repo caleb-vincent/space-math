@@ -6,32 +6,45 @@
 [ext_resource path="res://Cargo/CargoHud.tscn" type="PackedScene" id=5]
 
 [sub_resource type="GDScript" id=1]
-script/source = "extends Node
+script/source = "extends SubGame
 
 const Ship = preload(\"Ship.tscn\")
 
-var rng = RandomNumberGenerator.new()
-
-signal gameOver
 
 
-func _ready() -> void:
-	rng.randomize()
-	_newShip()
+################################################################################
+#	Inherited Methods
+################################################################################
+
 
 func _process(delta: float) -> void:
 	$Hud.time = $RoundTimer.time_left
 
-func _on_Control_onesPlace() -> void:
-	_updateLoadCount(1)
+
+func _ready() -> void:
+	_rng.randomize()
+	_newShip()
 
 
-func _on_Control_tensPlace() -> void:
-	_updateLoadCount(10)
+################################################################################
+#	Public Methods
+################################################################################
 
 
-func _on_Control_hundredsPlace() -> void:
-	_updateLoadCount(100)
+################################################################################
+#	Private Methods
+################################################################################
+
+
+func _newShip() -> void:
+	$Hud.shipName = \"M.S.S. \" + Data.ShipNames[_rng.randi_range(0, Data.ShipNames.size() - 1)]
+	$Ship.cargoCount = _rng.randi_range(0, $Ship.MAX_CARGO / 2)
+	$Ship.applied_force = Vector2(0,0)
+	$Ship.position = $ShipStart.position
+	$Ship.linear_velocity.x = -464
+	$Hud.loadCount = 0
+	$Hud.loadTotal = $Ship.MAX_CARGO - $Ship.cargoCount
+	$RoundTimer.start()
 
 
 func _updateLoadCount(add : int) -> void:
@@ -39,6 +52,22 @@ func _updateLoadCount(add : int) -> void:
 	$Ship.addCargo(add)
 	if $Hud.loadCount == $Hud.loadTotal:
 		$Ship.add_force(Vector2(0,0), Vector2(-500, 0))
+
+
+################################################################################
+#	Signal Handling
+################################################################################
+
+func _on_Control_onesPlace() -> void:
+	_updateLoadCount(1)
+
+
+func _on_Control_hundredsPlace() -> void:
+	_updateLoadCount(100)
+
+
+func _on_Control_tensPlace() -> void:
+	_updateLoadCount(10)
 
 
 func _on_GameOverSplashTimer_timeout() -> void:
@@ -53,18 +82,9 @@ func _on_ShipGone(success : bool) -> void:
 		$GameOverSplashTimer.start()
 	pass
 
-func _newShip() -> void:
-	$Hud.shipName = \"M.S.S. \" + Data.ShipNames[rng.randi_range(0, Data.ShipNames.size() - 1)]
-	$Ship.cargoCount = rng.randi_range(0, $Ship.MAX_CARGO / 2)
-	$Ship.applied_force = Vector2(0,0)
-	$Ship.position = $ShipStart.position
-	$Ship.linear_velocity.x = -464
-	$Hud.loadCount = 0
-	$Hud.loadTotal = $Ship.MAX_CARGO - $Ship.cargoCount
-	$RoundTimer.start()
 "
 
-[sub_resource type="RectangleShape2D" id=2]
+[sub_resource type="RectangleShape2D" id=4]
 extents = Vector2( 760, 216 )
 
 [sub_resource type="RectangleShape2D" id=3]
@@ -111,7 +131,7 @@ gravity_vec = Vector2( -1, 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DepartureAccelerator"]
 position = Vector2( -872, 304 )
-shape = SubResource( 2 )
+shape = SubResource( 4 )
 
 [node name="StoppingBuffer" type="Area2D" parent="."]
 position = Vector2( -136, 160 )
@@ -125,7 +145,6 @@ position = Vector2( 48, 144 )
 shape = SubResource( 3 )
 [connection signal="timeout" from="GameOverSplashTimer" to="." method="_on_GameOverSplashTimer_timeout"]
 [connection signal="shipGone" from="Ship" to="." method="_on_ShipGone"]
-[connection signal="tree_exited" from="Ship" to="." method="_on_Ship_tree_exited"]
 [connection signal="gameOver" from="Hud" to="." method="_on_GameOverSplashTimer_timeout"]
 [connection signal="hundredsPlace" from="Control" to="." method="_on_Control_hundredsPlace"]
 [connection signal="onesPlace" from="Control" to="." method="_on_Control_onesPlace"]

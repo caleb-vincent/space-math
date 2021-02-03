@@ -20,6 +20,12 @@ onready var ROWS : int = ROW_MAX /  gridSize
 onready var COLUMNS : int = COLUMN_MAX /  gridSize
 onready var MAX_CARGO = ROWS * COLUMNS
 
+
+################################################################################
+#	Public Methods
+################################################################################
+
+
 func addCargo(count : int) -> void:
 	for i in range(0, count):
 		if(cargoCount == MAX_CARGO):
@@ -31,6 +37,12 @@ func addCargo(count : int) -> void:
 		new_box.add_to_group(\"cargoBoxes\")
 		$Sprite.add_child(new_box)
 		cargoCount += 1
+
+
+################################################################################
+#	Private Methods
+################################################################################
+
 
 func _setCargo(count : int) -> void:
 	_clearCargo()
@@ -46,6 +58,11 @@ func _destruct() -> void:
 	$Sprite.visible = false
 	$DestructionTimer.start()
 	$DescructionParticles.emitting = true
+
+
+################################################################################
+#	Signal Handling
+################################################################################
 
 
 func _on_shipGone() -> void:

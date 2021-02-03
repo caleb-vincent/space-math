@@ -11,11 +11,16 @@ const Dodge = preload(\"res://Dodge/Dodge.tscn\")
 const Cargo = preload(\"res://Cargo/Cargo.tscn\")
 const Credits = preload(\"res://Credits.tscn\")
 
-var game = null
+var game : SubGame = null
+
+
+################################################################################
+#	Inherited Methods
+################################################################################
+
 
 func _ready() -> void:
 	pass
-
 
 
 func _process(delta):
@@ -23,6 +28,37 @@ func _process(delta):
 		game.get_tree().paused = !game.get_tree().paused
 	elif game != null &&  Input.is_action_pressed(\"game_escape\"):
 		_on_gameOver()
+
+
+################################################################################
+#	Public Methods
+################################################################################
+
+
+################################################################################
+#	Private Methods
+################################################################################
+
+
+
+
+################################################################################
+#	Signal Handling
+################################################################################
+
+func _on_difficultyChange(difficulty : int) -> void:
+	Options.selectedDifficulty = difficulty
+
+
+func _on_DodgeOptions_hide() -> void:
+	$Menu.visible = true
+
+
+func _on_gameOver() -> void:
+	game.queue_free()
+	game = null
+	$Menu.visible = true
+	$Background.visible = true
 
 
 func _on_Menu_astroidDodge() -> void:
@@ -38,23 +74,6 @@ func _on_Menu_astroidDodge() -> void:
 func _on_Menu_astroidDodgeOptions() -> void:
 	$Menu.visible = false
 	$DodgeOptions.visible = true
-
-
-
-func _on_gameOver() -> void:
-	game.queue_free()
-	game = null
-	$Menu.visible = true
-	$Background.visible = true
-
-
-func _on_difficultyChange(difficulty : int) -> void:
-	Options.selectedDifficulty = difficulty
-
-
-
-func _on_DodgeOptions_hide() -> void:
-	$Menu.visible = true
 
 
 func _on_Menu_cargoPlacing() -> void:
@@ -73,6 +92,7 @@ func _on_Menu_credits() -> void:
 	game = credits
 	credits.connect(\"gameOver\", self, \"_on_gameOver\")
 	add_child(credits)
+
 "
 
 [node name="Main" type="Node"]
