@@ -10,6 +10,8 @@ script/source = "extends SubGame
 
 const Ship = preload(\"Ship.tscn\")
 
+const INITIAL_VELOCITY = Vector2(-464,0)
+const EXIT_NUDGE = Vector2(-500,0)
 
 
 ################################################################################
@@ -41,7 +43,7 @@ func _newShip() -> void:
 	$Ship.cargoCount = _rng.randi_range(0, $Ship.MAX_CARGO / 2)
 	$Ship.applied_force = Vector2(0,0)
 	$Ship.position = $ShipStart.position
-	$Ship.linear_velocity.x = -464
+	$Ship.linear_velocity = INITIAL_VELOCITY
 	$Hud.loadCount = 0
 	$Hud.loadTotal = $Ship.MAX_CARGO - $Ship.cargoCount
 	$RoundTimer.start()
@@ -51,7 +53,7 @@ func _updateLoadCount(add : int) -> void:
 	$Hud.loadCount += add
 	$Ship.addCargo(add)
 	if $Hud.loadCount == $Hud.loadTotal:
-		$Ship.add_force(Vector2(0,0), Vector2(-500, 0))
+		$Ship.add_force(Vector2(0,0), EXIT_NUDGE)
 
 
 ################################################################################
