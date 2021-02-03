@@ -54,6 +54,7 @@ func _updateLoadCount(add : int) -> void:
 	$Ship.addCargo(add)
 	if $Hud.loadCount == $Hud.loadTotal:
 		$Ship.add_force(Vector2(0,0), EXIT_NUDGE)
+		$Hud.score += 1
 
 
 ################################################################################
@@ -61,15 +62,18 @@ func _updateLoadCount(add : int) -> void:
 ################################################################################
 
 func _on_Control_onesPlace() -> void:
-	_updateLoadCount(1)
+	if $Ship.isReady():
+		_updateLoadCount(1)
 
 
 func _on_Control_hundredsPlace() -> void:
-	_updateLoadCount(100)
+	if $Ship.isReady():
+		_updateLoadCount(100)
 
 
 func _on_Control_tensPlace() -> void:
-	_updateLoadCount(10)
+	if $Ship.isReady():
+		_updateLoadCount(10)
 
 
 func _on_GameOverSplashTimer_timeout() -> void:

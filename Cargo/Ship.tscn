@@ -38,6 +38,8 @@ func addCargo(count : int) -> void:
 		$Sprite.add_child(new_box)
 		cargoCount += 1
 
+func isReady() -> bool:
+	return $Sprite.visible && linear_velocity.length_squared() < 1
 
 ################################################################################
 #	Private Methods

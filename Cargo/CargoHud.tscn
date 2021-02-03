@@ -13,7 +13,7 @@ export var shipName : String = \"M.S.S. Al-Khwārizmī\" setget _setShipName
 export var time = 0.0 setget _setTime
 export var loadCount : int = 0 setget _setLoad
 export var loadTotal : int = 0 setget _setTotal
-
+export var score = 0 setget _setScore
 
 func gameOver() -> void:
 	$StatusBar.visible = false
@@ -36,6 +36,11 @@ func _setTime(t : float) -> void:
 func _setLoad(count : int) -> void:
 	loadCount = count
 	_updateLoading()
+
+
+func _setScore(s : int) -> void:
+	score = s
+	$StatusBar/Score/Label.text = str(score)
 
 
 func _setTotal(total : int) -> void:
@@ -83,7 +88,7 @@ stretch_mode = 5
 
 [node name="ShipName" type="Panel" parent="StatusBar"]
 margin_left = 36.0
-margin_right = 448.0
+margin_right = 415.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -103,8 +108,8 @@ __meta__ = {
 }
 
 [node name="TimeRemaining" type="Panel" parent="StatusBar"]
-margin_left = 452.0
-margin_right = 864.0
+margin_left = 419.0
+margin_right = 798.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -127,8 +132,8 @@ __meta__ = {
 }
 
 [node name="Loading" type="Panel" parent="StatusBar"]
-margin_left = 868.0
-margin_right = 1280.0
+margin_left = 802.0
+margin_right = 1181.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -143,6 +148,24 @@ text = "Loaded: nnn of NNN"
 align = 1
 valign = 1
 uppercase = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Score" type="Panel" parent="StatusBar"]
+margin_left = 1185.0
+margin_right = 1280.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.25
+
+[node name="Label" type="Label" parent="StatusBar/Score"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "NNn"
+align = 1
+valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
