@@ -81,6 +81,11 @@ game_pause={
 2d_physics/layer_4="False Target"
 2d_physics/layer_5="Bonus"
 
+[locale]
+
+translations=PoolStringArray( "res://assets/translation.en.translation" )
+locale_filter=[ 1, [ "en" ] ]
+
 [rendering]
 
 quality/driver/driver_name="GLES2"

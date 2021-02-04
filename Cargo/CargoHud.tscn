@@ -52,9 +52,9 @@ func _setShipName(name : String) -> void:
 func _setTime(t : float) -> void:
 	time = t
 	if t == 0:
-		$VBoxContainer/StatusBar/TimeRemaining/Label.text = \"Departs: NOW\"
+		$VBoxContainer/StatusBar/TimeRemaining/Label.text = tr(\"DEPARTURE\") + \": NOW\"
 	else:
-		$VBoxContainer/StatusBar/TimeRemaining/Label.text = \"Departs in: \" +  \"%03.1f\" % [t]
+		$VBoxContainer/StatusBar/TimeRemaining/Label.text = tr(\"DEPARTURE\") + \": \" +  \"%03.1f\" % [t]
 
 
 func _setLives(l : int) -> void:
@@ -78,7 +78,7 @@ func _setTotal(total : int) -> void:
 
 
 func _updateLoading() -> void:
-	$VBoxContainer/StatusBar/Loading/Label.text = \"Loaded: \" + \"%3d\" % [loadCount] + \" of \" + \"%3d\" % [loadTotal]
+	$VBoxContainer/StatusBar/Loading/Label.text = tr(\"LOADED\") + \": \" + \"%3d\" % [loadCount] + \" \" + tr(\"OF\") + \" \" + \"%3d\" % [loadTotal]
 
 
 func _on_ExitButton_pressed() -> void:

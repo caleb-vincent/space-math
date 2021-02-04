@@ -20,28 +20,28 @@ __meta__ = {
 }
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
-margin_left = 541.0
+margin_left = 534.0
 margin_top = 285.0
-margin_right = 739.0
+margin_right = 746.0
 margin_bottom = 435.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
-margin_right = 198.0
+margin_right = 212.0
 margin_bottom = 27.0
-text = "Game Type"
+text = "GAME_TYPE"
 
 [node name="GameTypeSelection" type="OptionButton" parent="CenterContainer/VBoxContainer"]
 margin_top = 31.0
-margin_right = 198.0
+margin_right = 212.0
 margin_bottom = 78.0
 size_flags_horizontal = 3
 toggle_mode = false
-text = "Addition"
+text = "ADDITION"
 expand_icon = true
-items = [ "Addition", null, false, 0, null, "Subtraction", null, false, 1, null, "Fact Families", null, false, 2, null, "Multiplication", null, false, 3, null, "Division", null, false, 4, null ]
+items = [ "ADDITION", null, false, 0, null, "SUBTRACTION", null, false, 1, null, "FACT_FAMILIES", null, false, 2, null, "MULTIPLICATION", null, false, 3, null, "DIVISION", null, false, 4, null ]
 selected = 0
 __meta__ = {
 "_edit_use_anchors_": false
@@ -49,13 +49,13 @@ __meta__ = {
 
 [node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
 margin_top = 82.0
-margin_right = 198.0
+margin_right = 212.0
 margin_bottom = 109.0
-text = "Max Answer"
+text = "MAX_ANSWER"
 
 [node name="MaxAnswerSelection" type="SpinBox" parent="CenterContainer/VBoxContainer"]
 margin_top = 113.0
-margin_right = 198.0
+margin_right = 212.0
 margin_bottom = 150.0
 value = 10.0
 

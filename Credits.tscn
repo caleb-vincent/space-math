@@ -102,29 +102,7 @@ centered = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 custom_fonts/font = SubResource( 2 )
-text = "Made using the Godot Game Engine
-by
-Caleb Vincent
-caleb-vincent.gitlab.io
-
-with modified assets sourced  from
-
-\"UI pack: Space extension\"
-and
-\"Space Shooter (Redux, plus fonts and sounds)\"
-by
-Kenney Vleugels
-www.kenney.nl
-
-\"Top down 2D Metal box\" 
-by
-Jelly Bean
-opengameart.org/content/top-down-2d-metal-box
-
-\"Spaceship construction blocks\"
-by
-Buch
-opengameart.org/users/buch"
+text = "CREDITS_TEXT"
 align = 1
 valign = 1
 __meta__ = {

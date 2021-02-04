@@ -11,10 +11,11 @@ const Ship = preload(\"Ship.tscn\")
 
 const INITIAL_VELOCITY = Vector2(-464,0)
 const EXIT_NUDGE = Vector2(-500,0)
-const GAME_OVER = \"GAME\\r\\nOVER\"
-const BONUS_MSG = \"BONUS!\"
-const MISSED_MSG = \"MISSED!\"
-const OVERLOADED_MSG = \"OVERLOADED!\"
+
+var GAME_OVER = tr(\"GAME_OVER_MSG\")
+var BONUS_MSG = tr(\"BONUS_MSG\")
+var MISSED_MSG = tr(\"MISSED_MSG\")
+var OVERLOADED_MSG = tr(\"OVERLOADED_MSG\")
 
 ################################################################################
 #	Inherited Methods

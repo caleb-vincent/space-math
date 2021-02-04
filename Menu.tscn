@@ -74,7 +74,7 @@ margin_bottom = 92.0
 rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Astroid Dodge"
+text = "ASTEROID_DODGE"
 icon = ExtResource( 1 )
 expand_icon = true
 
@@ -102,7 +102,7 @@ margin_bottom = 92.0
 rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Cargo Placing"
+text = "CARGO_PLACING"
 icon = ExtResource( 3 )
 expand_icon = true
 
@@ -123,15 +123,15 @@ __meta__ = {
 [node name="Label" type="Label" parent="VBoxContainer"]
 margin_right = 176.0
 margin_bottom = 27.0
-text = "Difficulty"
+text = "DIFFICULTY"
 
 [node name="OptionButton" type="OptionButton" parent="VBoxContainer"]
 margin_top = 31.0
 margin_right = 176.0
 margin_bottom = 78.0
-text = "Normal"
+text = "NORMAL"
 expand_icon = true
-items = [ "Easy", null, false, 0, null, "Normal", null, false, 1, null, "Hard", null, false, 2, null ]
+items = [ "EASY", null, false, 0, null, "NORMAL", null, false, 1, null, "HARD", null, false, 2, null ]
 selected = 1
 __meta__ = {
 "_edit_use_anchors_": false

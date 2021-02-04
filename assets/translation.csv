@@ -1,0 +1,49 @@
+"keys","en"
+"ASTEROID_DODGE","Asteroid Dodge"
+"OPTIONS","Options"
+"CARGO_PLACING","Cargo Placing"
+"CREDITS","Credits"
+"DIFFICULTY","Difficulty"
+"NORMAL","Normal"
+"EASY","Easy"
+"HARD","Hard"
+"GAME_TYPE","Game Type"
+"ADDITION","Addition"
+"SUBTRACTION","Subtraction"
+"FACT_FAMILIES","Fact Families"
+"MULTIPLICATION","Multiplication"
+"DIVISION","Division"
+"MAX_ANSWER","Max Answer"
+"OK","OK"
+"SHIP_PREFIX","M.S.S."
+"DEPARTURE","Departs in"
+"LOADED","Loaded"
+"OF","of"
+"GAME_OVER_MSG","Game
+Over"
+"BONUS_MSG","Bonus!"
+"MISSED_MSG","Missed!"
+"OVERLOADED_MSG","Overloaded!"
+"CREDITS_TEXT","Made using the Godot Game Engine
+by
+Caleb Vincent
+caleb-vincent.gitlab.io
+
+with modified assets sourced  from
+
+""UI pack: Space extension""
+and
+""Space Shooter (Redux, plus fonts and sounds)""
+by
+Kenney Vleugels
+www.kenney.nl
+
+""Top down 2D Metal box"" 
+by
+Jelly Bean
+opengameart.org/content/top-down-2d-metal-box
+
+""Spaceship construction blocks""
+by
+Buch
+opengameart.org/users/buch"
