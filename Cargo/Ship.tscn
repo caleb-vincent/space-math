@@ -10,6 +10,7 @@ const CargoBox = preload(\"CargoBox.tscn\")
 export var gridSize : int = 19
 
 signal shipGone
+signal shipReady
 
 var cargoCount = 0 setget _setCargo
 
@@ -19,6 +20,20 @@ const COLUMN_MAX : int = 950
 onready var ROWS : int = ROW_MAX /  gridSize
 onready var COLUMNS : int = COLUMN_MAX /  gridSize
 onready var MAX_CARGO = ROWS * COLUMNS
+
+var _previousVx = 0
+
+################################################################################
+#	Inherited Methods
+################################################################################
+
+
+func _integrate_forces (state : Physics2DDirectBodyState)  -> void:
+	var deltaV = abs(linear_velocity.x - _previousVx) / state.step
+	if abs(linear_velocity.x) < 0.5 && deltaV > 0:
+		emit_signal(\"shipReady\")
+		linear_velocity = Vector2.ZERO
+	_previousVx = linear_velocity.x
 
 
 ################################################################################
@@ -68,7 +83,7 @@ func _destruct() -> void:
 
 
 func _on_shipGone() -> void:
-	emit_signal(\"shipGone\", cargoCount <= MAX_CARGO)
+	emit_signal(\"shipGone\")
 	$Sprite.visible = true
 
 

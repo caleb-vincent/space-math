@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://assets/theme.tres" type="Theme" id=1]
 [ext_resource path="res://assets/cargoBox_ten.png" type="Texture" id=2]
 [ext_resource path="res://assets/cargoBox_hundred.png" type="Texture" id=3]
+[ext_resource path="res://assets/glassPanel_projection.png" type="Texture" id=4]
 [ext_resource path="res://assets/cargoBox.png" type="Texture" id=5]
 
 [sub_resource type="GDScript" id=1]
@@ -12,6 +13,7 @@ signal onesPlace
 signal tensPlace
 signal hundredsPlace
 
+var disabled : bool = true setget _setDisabled
 
 func _onOnesButton() -> void:
 	emit_signal(\"onesPlace\")
@@ -23,7 +25,31 @@ func _onTensButton() -> void:
 
 func _onHundredsButton() -> void:
 	emit_signal(\"hundredsPlace\")
+
+func _setDisabled(d : bool) -> void:
+	disabled = d
+	var alphaColor = (0.75 if d else 1.0)
+	$Ones.disabled = d
+	$Ones/TextureRect.modulate = Color( 1, 1, 1, alphaColor )
+	$Tens.disabled = d
+	$Ones/TextureRect.modulate = Color( 1, 1, 1, alphaColor )
+	$HundredsButton.disabled = d
+	$Ones/TextureRect.modulate = Color( 1, 1, 1, alphaColor)
+
 "
+
+[sub_resource type="StyleBoxTexture" id=2]
+content_margin_left = 16.0
+content_margin_right = 12.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+texture = ExtResource( 4 )
+region_rect = Rect2( 0, 0, 100, 100 )
+margin_left = 8.0
+margin_right = 8.0
+margin_top = 8.0
+margin_bottom = 8.0
+modulate_color = Color( 0.901961, 0.901961, 0.901961, 1 )
 
 [node name="CargoControls" type="HBoxContainer"]
 anchor_right = 1.0
@@ -35,20 +61,31 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Spacer" type="Container" parent="."]
+margin_right = 157.0
+margin_bottom = 192.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.75
+
 [node name="Ones" type="Button" parent="."]
-margin_right = 424.0
+margin_left = 161.0
+margin_right = 370.0
 margin_bottom = 192.0
 focus_mode = 0
 size_flags_horizontal = 3
 shortcut_in_tooltip = false
 action_mode = 0
 enabled_focus_mode = 0
+expand_icon = true
 
 [node name="TextureRect" type="TextureRect" parent="Ones"]
+modulate = Color( 1, 1, 1, 0.752941 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = 24.0
-margin_bottom = -24.0
+margin_left = 8.0
+margin_top = 12.0
+margin_right = -8.0
+margin_bottom = -12.0
 texture = ExtResource( 5 )
 expand = true
 stretch_mode = 6
@@ -56,45 +93,78 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Spacer2" type="Container" parent="."]
+margin_left = 374.0
+margin_right = 531.0
+margin_bottom = 192.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.75
+
 [node name="Tens" type="Button" parent="."]
-margin_left = 428.0
-margin_right = 852.0
+margin_left = 535.0
+margin_right = 744.0
 margin_bottom = 192.0
 focus_mode = 0
 size_flags_horizontal = 3
+custom_styles/normal = SubResource( 2 )
 shortcut_in_tooltip = false
 action_mode = 0
 enabled_focus_mode = 0
+expand_icon = true
 
 [node name="TextureRect" type="TextureRect" parent="Tens"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 12.0
+margin_right = -8.0
+margin_bottom = -12.0
 texture = ExtResource( 2 )
-stretch_mode = 4
+expand = true
+stretch_mode = 6
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Spacer3" type="Container" parent="."]
+margin_left = 748.0
+margin_right = 905.0
+margin_bottom = 192.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.75
+
 [node name="HundredsButton" type="Button" parent="."]
-margin_left = 856.0
-margin_right = 1280.0
+margin_left = 909.0
+margin_right = 1118.0
 margin_bottom = 192.0
 focus_mode = 0
 size_flags_horizontal = 3
+custom_styles/normal = SubResource( 2 )
 shortcut_in_tooltip = false
 action_mode = 0
 enabled_focus_mode = 0
+expand_icon = true
 
 [node name="TextureRect" type="TextureRect" parent="HundredsButton"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-size_flags_horizontal = 5
-size_flags_vertical = 5
+margin_left = 8.0
+margin_top = 12.0
+margin_right = -8.0
+margin_bottom = -12.0
 texture = ExtResource( 3 )
-stretch_mode = 4
+expand = true
+stretch_mode = 6
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Spacer4" type="Container" parent="."]
+margin_left = 1122.0
+margin_right = 1280.0
+margin_bottom = 192.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.75
 [connection signal="pressed" from="Ones" to="." method="_onOnesButton"]
 [connection signal="pressed" from="Tens" to="." method="_onTensButton"]
 [connection signal="pressed" from="HundredsButton" to="." method="_onHundredsButton"]

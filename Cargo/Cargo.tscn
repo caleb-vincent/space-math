@@ -12,7 +12,10 @@ const Ship = preload(\"Ship.tscn\")
 
 const INITIAL_VELOCITY = Vector2(-464,0)
 const EXIT_NUDGE = Vector2(-500,0)
-
+const GAME_OVER = \"GAME\\r\\nOVER\"
+const BONUS_MSG = \"BONUS!\"
+const MISSED_MSG = \"MISSED!\"
+const OVERLOADED_MSG = \"OVERLOADED!\"
 
 ################################################################################
 #	Inherited Methods
@@ -20,12 +23,14 @@ const EXIT_NUDGE = Vector2(-500,0)
 
 
 func _process(delta: float) -> void:
-	$Hud.time = $RoundTimer.time_left
+	$Hud.time = $DepartureTimer.time_left
 
 
 func _ready() -> void:
 	_rng.randomize()
 	_newShip()
+	$Hud.score = 0
+	$Control.disabled = true
 
 
 ################################################################################
@@ -38,6 +43,21 @@ func _ready() -> void:
 ################################################################################
 
 
+func _difficultyTimeMultiplier() -> float:
+	if Options.selectedDifficulty == Options.Difficulty.EASY:
+		return _rng.randf_range(0.75, 1.25)
+	elif Options.selectedDifficulty == Options.Difficulty.HARD:
+		return _rng.randf_range(0.25, 0.75)
+	else:
+		return _rng.randf_range(0.5, 1)
+
+
+func _gameOver() -> void:
+	$Hud.msgText = GAME_OVER
+	$Control.visible = false
+	$Hud.connect(\"msgGone\", self, \"_on_GameOverSplashTimer_timeout\")
+
+
 func _newShip() -> void:
 	$Hud.shipName = \"M.S.S. \" + Data.ShipNames[_rng.randi_range(0, Data.ShipNames.size() - 1)]
 	$Ship.cargoCount = _rng.randi_range(0, $Ship.MAX_CARGO / 2)
@@ -45,21 +65,44 @@ func _newShip() -> void:
 	$Ship.position = $ShipStart.position
 	$Ship.linear_velocity = INITIAL_VELOCITY
 	$Hud.loadCount = 0
-	$Hud.loadTotal = $Ship.MAX_CARGO - $Ship.cargoCount
-	$RoundTimer.start()
+	var loadCount = $Ship.MAX_CARGO - $Ship.cargoCount
+	$Hud.loadTotal = loadCount
+	var hCount = int(loadCount / 100)
+	var tCount = int((loadCount - (hCount * 100)) / 10)
+	var oCount = loadCount - (hCount * 100) - (tCount * 10)
+	$DepartureTimer.wait_time = (hCount + tCount + oCount) * _difficultyTimeMultiplier()
+	$DepartureTimer.start()
+
+
+func _shipDeparture() -> void:
+	if $Hud.loadCount < $Hud.loadTotal:
+		$Hud.lives -= 1
+		$Hud.msgText = MISSED_MSG
+	elif $DepartureTimer.time_left > $DepartureTimer.wait_time / 2:
+		$Hud.lives += 1
+		$Hud.msgText = BONUS_MSG
+	if $Hud.lives < 0:
+		_gameOver()
+	$Ship.add_force(Vector2(0,0), EXIT_NUDGE)
+	$Control.disabled = true
 
 
 func _updateLoadCount(add : int) -> void:
 	$Hud.loadCount += add
 	$Ship.addCargo(add)
 	if $Hud.loadCount == $Hud.loadTotal:
-		$Ship.add_force(Vector2(0,0), EXIT_NUDGE)
-		$Hud.score += 1
+		$Hud.score = int(clamp($Hud.score + 1, 0, 9999))
+		_shipDeparture()
+		$DepartureTimer.stop()
+	elif $Hud.loadCount > $Hud.loadTotal:
+		$Hud.msgText = OVERLOADED_MSG
+		$Hud.score = int(clamp($Hud.score - 1, 0, 9999))
 
 
 ################################################################################
 #	Signal Handling
 ################################################################################
+
 
 func _on_Control_onesPlace() -> void:
 	if $Ship.isReady():
@@ -76,17 +119,20 @@ func _on_Control_tensPlace() -> void:
 		_updateLoadCount(10)
 
 
+func _on_DepartureTimer_timeout() -> void:
+	_shipDeparture()
+
+
 func _on_GameOverSplashTimer_timeout() -> void:
 	emit_signal(\"gameOver\")
 
 
-func _on_ShipGone(success : bool) -> void:
-	if success:
-		_newShip()
-	else:
-		$Hud.gameOver()
-		$GameOverSplashTimer.start()
-	pass
+func _on_ShipGone() -> void:
+	_newShip()
+
+
+func _on_Ship_shipReady() -> void:
+	$Control.disabled = false
 
 "
 
@@ -99,12 +145,8 @@ extents = Vector2( 24, 167.442 )
 [node name="Cargo" type="Node"]
 script = SubResource( 1 )
 
-[node name="RoundTimer" type="Timer" parent="."]
+[node name="DepartureTimer" type="Timer" parent="."]
 wait_time = 20.0
-one_shot = true
-
-[node name="GameOverSplashTimer" type="Timer" parent="."]
-wait_time = 3.0
 one_shot = true
 
 [node name="Background" type="TextureRect" parent="."]
@@ -126,6 +168,7 @@ position = Vector2( 1400, 0 )
 position = Vector2( 1399.57, 0 )
 
 [node name="Hud" parent="." instance=ExtResource( 5 )]
+lives = 5
 
 [node name="Control" parent="." instance=ExtResource( 2 )]
 margin_top = 528.0
@@ -149,9 +192,9 @@ linear_damp = 10.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StoppingBuffer"]
 position = Vector2( 48, 144 )
 shape = SubResource( 3 )
-[connection signal="timeout" from="GameOverSplashTimer" to="." method="_on_GameOverSplashTimer_timeout"]
+[connection signal="timeout" from="DepartureTimer" to="." method="_on_DepartureTimer_timeout"]
 [connection signal="shipGone" from="Ship" to="." method="_on_ShipGone"]
-[connection signal="gameOver" from="Hud" to="." method="_on_GameOverSplashTimer_timeout"]
+[connection signal="shipReady" from="Ship" to="." method="_on_Ship_shipReady"]
 [connection signal="hundredsPlace" from="Control" to="." method="_on_Control_hundredsPlace"]
 [connection signal="onesPlace" from="Control" to="." method="_on_Control_onesPlace"]
 [connection signal="tensPlace" from="Control" to="." method="_on_Control_tensPlace"]
