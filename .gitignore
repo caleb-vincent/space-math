@@ -6,3 +6,5 @@ test_assets/
 *.bak*.dxf
 ~*
 .~*
+export_presets.cfg
+

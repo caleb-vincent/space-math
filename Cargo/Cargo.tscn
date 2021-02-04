@@ -1,7 +1,6 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://assets/black.png" type="Texture" id=1]
-[ext_resource path="res://Cargo/Controls.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Cargo/Ship.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Cargo/CargoHud.tscn" type="PackedScene" id=5]
 
@@ -30,7 +29,7 @@ func _ready() -> void:
 	_rng.randomize()
 	_newShip()
 	$Hud.score = 0
-	$Control.disabled = true
+	$Hud.controlsDisabled = true
 
 
 ################################################################################
@@ -54,8 +53,7 @@ func _difficultyTimeMultiplier() -> float:
 
 func _gameOver() -> void:
 	$Hud.msgText = GAME_OVER
-	$Control.visible = false
-	$Hud.connect(\"msgGone\", self, \"_on_GameOverSplashTimer_timeout\")
+	$Hud.connect(\"msgGone\", self, \"_on_GameOver\")
 
 
 func _newShip() -> void:
@@ -78,25 +76,25 @@ func _shipDeparture() -> void:
 	if $Hud.loadCount < $Hud.loadTotal:
 		$Hud.lives -= 1
 		$Hud.msgText = MISSED_MSG
-	elif $DepartureTimer.time_left > $DepartureTimer.wait_time / 2:
+	elif $Hud.loadCount == $Hud.loadTotal && $DepartureTimer.time_left > $DepartureTimer.wait_time / 2:
 		$Hud.lives += 1
 		$Hud.msgText = BONUS_MSG
 	if $Hud.lives < 0:
 		_gameOver()
 	$Ship.add_force(Vector2(0,0), EXIT_NUDGE)
-	$Control.disabled = true
+	$Hud.controlsDisabled = true
 
 
 func _updateLoadCount(add : int) -> void:
 	$Hud.loadCount += add
 	$Ship.addCargo(add)
 	if $Hud.loadCount == $Hud.loadTotal:
-		$Hud.score = int(clamp($Hud.score + 1, 0, 9999))
+		$Hud.score += 1
 		_shipDeparture()
 		$DepartureTimer.stop()
 	elif $Hud.loadCount > $Hud.loadTotal:
 		$Hud.msgText = OVERLOADED_MSG
-		$Hud.score = int(clamp($Hud.score - 1, 0, 9999))
+		$Hud.lives = ($Hud.lives - 1 if $Hud.lives > 0 else 0)
 
 
 ################################################################################
@@ -104,17 +102,17 @@ func _updateLoadCount(add : int) -> void:
 ################################################################################
 
 
-func _on_Control_onesPlace() -> void:
+func _on_onesPlace() -> void:
 	if $Ship.isReady():
 		_updateLoadCount(1)
 
 
-func _on_Control_hundredsPlace() -> void:
+func _on_hundredsPlace() -> void:
 	if $Ship.isReady():
 		_updateLoadCount(100)
 
 
-func _on_Control_tensPlace() -> void:
+func _on_tensPlace() -> void:
 	if $Ship.isReady():
 		_updateLoadCount(10)
 
@@ -123,7 +121,7 @@ func _on_DepartureTimer_timeout() -> void:
 	_shipDeparture()
 
 
-func _on_GameOverSplashTimer_timeout() -> void:
+func _on_GameOver() -> void:
 	emit_signal(\"gameOver\")
 
 
@@ -132,7 +130,7 @@ func _on_ShipGone() -> void:
 
 
 func _on_Ship_shipReady() -> void:
-	$Control.disabled = false
+	$Hud.controlsDisabled = false
 
 "
 
@@ -170,10 +168,6 @@ position = Vector2( 1399.57, 0 )
 [node name="Hud" parent="." instance=ExtResource( 5 )]
 lives = 5
 
-[node name="Control" parent="." instance=ExtResource( 2 )]
-margin_top = 528.0
-margin_bottom = 0.0
-
 [node name="DepartureAccelerator" type="Area2D" parent="."]
 space_override = 3
 gravity_vec = Vector2( -1, 1 )
@@ -195,6 +189,7 @@ shape = SubResource( 3 )
 [connection signal="timeout" from="DepartureTimer" to="." method="_on_DepartureTimer_timeout"]
 [connection signal="shipGone" from="Ship" to="." method="_on_ShipGone"]
 [connection signal="shipReady" from="Ship" to="." method="_on_Ship_shipReady"]
-[connection signal="hundredsPlace" from="Control" to="." method="_on_Control_hundredsPlace"]
-[connection signal="onesPlace" from="Control" to="." method="_on_Control_onesPlace"]
-[connection signal="tensPlace" from="Control" to="." method="_on_Control_tensPlace"]
+[connection signal="gameOver" from="Hud" to="." method="_on_GameOver"]
+[connection signal="hundredsPlace" from="Hud" to="." method="_on_hundredsPlace"]
+[connection signal="onesPlace" from="Hud" to="." method="_on_onesPlace"]
+[connection signal="tensPlace" from="Hud" to="." method="_on_tensPlace"]
