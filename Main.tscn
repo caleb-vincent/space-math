@@ -7,9 +7,10 @@
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node
 
-const Dodge = preload(\"res://Dodge/Dodge.tscn\")
 const Cargo = preload(\"res://Cargo/Cargo.tscn\")
 const Credits = preload(\"res://Credits.tscn\")
+const Debris = preload(\"res://Debris/Debris.tscn\")
+const Dodge = preload(\"res://Dodge/Dodge.tscn\")
 
 var game : SubGame = null
 
@@ -93,6 +94,14 @@ func _on_Menu_credits() -> void:
 	credits.connect(\"gameOver\", self, \"_on_gameOver\")
 	add_child(credits)
 
+
+func _on_Menu_debrisCanceling() -> void:
+	$Menu.visible = false
+	$Background.visible = false
+	game = Debris.instance()
+	game.connect(\"gameOver\", self, \"_on_gameOver\")
+	add_child(game)
+
 "
 
 [node name="Main" type="Node"]
@@ -122,6 +131,7 @@ visible = false
 [connection signal="astroidDodge" from="Menu" to="." method="_on_Menu_astroidDodge"]
 [connection signal="astroidDodgeOptions" from="Menu" to="." method="_on_Menu_astroidDodgeOptions"]
 [connection signal="cargoPlacing" from="Menu" to="." method="_on_Menu_cargoPlacing"]
+[connection signal="debrisCanceling" from="Menu" to="." method="_on_Menu_debrisCanceling"]
 [connection signal="difficultSelected" from="Menu" to="." method="_on_difficultyChange"]
 [connection signal="rollCredits" from="Menu" to="." method="_on_Menu_credits"]
 [connection signal="hide" from="DodgeOptions" to="." method="_on_DodgeOptions_hide"]

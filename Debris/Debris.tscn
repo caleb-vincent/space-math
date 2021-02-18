@@ -1,0 +1,87 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://assets/star_silver.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends SubGame
+
+
+const DebrisPiece = preload(\"DebrisPiece.tscn\")
+const DebrisCluster = preload(\"DebrisCluster.tscn\")
+const DebrisLeader = preload(\"DebrisLeader.tscn\")
+
+func _ready() -> void:
+	_addDebris()
+
+
+func _process(_delta) -> void:
+	if Input.is_action_just_released(\"ui_accept\"):
+		_fire()
+
+
+func _addDebris() -> void:
+	var debris = DebrisLeader.instance()
+	add_child(debris)
+	debris.position = $DebrisStart.position
+	debris.visible = false
+
+	debris.connect(\"offScreen\", self, \"_debrisLeft\")
+	debris.connect(\"impact\", self, \"_onImpact\")
+
+	var piece = debris
+	for  i in range(0,5):
+		var piece2 = DebrisPiece.instance()
+		piece2.value = _rng.randi_range(-10, 10)
+		piece2.position = piece.position + Vector2(48, 0)
+		add_child(piece2)
+		piece.connectTo(piece2)
+		piece = piece2
+
+
+func _debrisLeft(node : PhysicsBody2D) -> void:
+	node.teleportChain(Vector2($DebrisStart.position.x, node.position.y))
+
+
+func _fire() -> void:
+	var payload = DebrisPiece.instance()
+	payload.value = _rng.randi_range(-10, 10)
+	payload.position = Vector2(640, 640)
+	payload.linear_velocity.y = -800
+	payload.collision_layer = 0x8
+	add_child(payload)
+
+
+func _onImpact( node : PhysicsBody2D ) -> void:
+	node.clearChain()
+
+"
+
+[sub_resource type="ConvexPolygonShape2D" id=4]
+points = PoolVector2Array( -640, 0, 640, 0, 0, -32 )
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 68.0755
+
+[node name="Debris" type="Node2D"]
+script = SubResource( 2 )
+
+[node name="DebrisStart" type="Position2D" parent="."]
+position = Vector2( 1430.04, 96.0667 )
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true
+
+[node name="SpaceStation" type="StaticBody2D" parent="."]
+position = Vector2( 640, 720 )
+collision_layer = 2
+
+[node name="StationShape" type="CollisionShape2D" parent="SpaceStation"]
+shape = SubResource( 4 )
+
+[node name="TurretShape" type="CollisionShape2D" parent="SpaceStation"]
+shape = SubResource( 3 )
+
+[node name="Sprite" type="Sprite" parent="SpaceStation"]
+scale = Vector2( 2.5, 2.5 )
+texture = ExtResource( 1 )
