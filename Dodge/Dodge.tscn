@@ -46,9 +46,9 @@ func _ready() -> void:
 		$Player.linear_damp /= 2
 	$Hud.showStartSplash()
 	_newQuestion()
-	for n in range(2):
+	for _n in range(2):
 		_addObstacle()
-	for n in range(2):
+	for _n in range(2):
 		_addTarget()
 	assert(dodgeOptions != null)
 
