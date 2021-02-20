@@ -8,7 +8,6 @@ script/source = "extends SubGame
 
 const DebrisPiece = preload(\"DebrisPiece.tscn\")
 const DebrisCluster = preload(\"DebrisCluster.tscn\")
-const DebrisLeader = preload(\"DebrisLeader.tscn\")
 
 func _ready() -> void:
 	_addDebris()
@@ -20,16 +19,16 @@ func _process(_delta) -> void:
 
 
 func _addDebris() -> void:
-	var debris = DebrisLeader.instance()
+	var debris = DebrisPiece.instance()
 	add_child(debris)
 	debris.position = $DebrisStart.position
-	debris.visible = false
+	debris.value = _rng.randi_range(-10, 10)
 
 	debris.connect(\"offScreen\", self, \"_debrisLeft\")
 	debris.connect(\"impact\", self, \"_onImpact\")
 
 	var piece = debris
-	for  i in range(0,5):
+	for  i in range(0,4):
 		var piece2 = DebrisPiece.instance()
 		piece2.value = _rng.randi_range(-10, 10)
 		piece2.position = piece.position + Vector2(48, 0)
@@ -75,6 +74,7 @@ autostart = true
 [node name="SpaceStation" type="StaticBody2D" parent="."]
 position = Vector2( 640, 720 )
 collision_layer = 2
+collision_mask = 4
 
 [node name="StationShape" type="CollisionShape2D" parent="SpaceStation"]
 shape = SubResource( 4 )
