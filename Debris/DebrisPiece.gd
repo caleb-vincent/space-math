@@ -7,10 +7,12 @@ signal teleportDone
 signal teleportReady
 signal offScreen
 signal impact
+signal canceled
 
 export var moveSpeed  = Vector2(-200, 10)
 
 var value : int = INF setget _setValue
+var symbol : String = "" setget _setSymbol
 var isFirst : bool = true setget _setIsFirst
 var leader : PhysicsBody2D = null
 var follower : PhysicsBody2D = null
@@ -39,6 +41,22 @@ func  _integrate_forces (state : Physics2DDirectBodyState ):
 	elif leader == null && follower != null && !_pause:
 		state.linear_velocity = moveSpeed
 
+
+func _process(delta: float) -> void:
+	if leader == null && follower != null:
+		var total = 0
+		var node = self
+		while node != null && is_instance_valid(node):
+			if node.symbol != "":
+				total *= -1
+			else:
+				total += node.value
+			node = node.follower
+		$DebugLabel.visible = OS.is_debug_build()
+		$DebugLabel.text = str(total)
+		if total == 0:
+			clearChain()
+			emit_signal("canceled")
 
 ################################################################################
 #	Public Methods
@@ -93,6 +111,12 @@ func teleportChain(pos : Vector2) -> void:
 func _setIsFirst(b : bool) -> void:
 	isFirst = b
 	_setValue(value)
+
+
+func _setSymbol(s : String) -> void:
+	symbol = s
+	$Label.text = symbol
+	value = INF
 
 
 func _setValue(v : int) -> void:

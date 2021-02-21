@@ -19,6 +19,7 @@ func _process(_delta) -> void:
 
 
 func _addDebris() -> void:
+
 	var debris = DebrisPiece.instance()
 	add_child(debris)
 	debris.position = $DebrisStart.position
@@ -27,15 +28,20 @@ func _addDebris() -> void:
 	debris.connect(\"offScreen\", self, \"_debrisLeft\")
 	debris.connect(\"impact\", self, \"_onImpact\")
 
-	var piece = debris
-	for  i in range(0,4):
-		var piece2 = DebrisPiece.instance()
-		piece2.value = _rng.randi_range(-10, 10)
-		piece2.position = piece.position + Vector2(48, 0)
-		add_child(piece2)
-		piece.connectTo(piece2)
-		piece = piece2
+	var symbol = DebrisPiece.instance()
+	add_child(symbol)
+	symbol.symbol = \"!=\"
+	symbol.position = debris.position + Vector2(48, 0)
+	debris.connectTo(symbol)
 
+	var piece2 = DebrisPiece.instance()
+	add_child(piece2)
+	piece2.position = symbol.position + Vector2(48, 0)
+	piece2.value = _rng.randi_range(-10, 10)
+	while piece2.value == debris.value:
+		piece2.value = _rng.randi_range(-10, 10)
+	symbol.connectTo(piece2)
+	pass
 
 func _debrisLeft(node : PhysicsBody2D) -> void:
 	node.teleportChain(Vector2($DebrisStart.position.x, node.position.y))
@@ -53,6 +59,10 @@ func _fire() -> void:
 func _onImpact( node : PhysicsBody2D ) -> void:
 	node.clearChain()
 
+
+
+func _on_SpawnTimer_timeout() -> void:
+	_addDebris()
 "
 
 [sub_resource type="ConvexPolygonShape2D" id=4]
@@ -68,7 +78,7 @@ script = SubResource( 2 )
 position = Vector2( 1430.04, 96.0667 )
 
 [node name="SpawnTimer" type="Timer" parent="."]
-wait_time = 10.0
+wait_time = 20.0
 autostart = true
 
 [node name="SpaceStation" type="StaticBody2D" parent="."]
@@ -85,3 +95,4 @@ shape = SubResource( 3 )
 [node name="Sprite" type="Sprite" parent="SpaceStation"]
 scale = Vector2( 2.5, 2.5 )
 texture = ExtResource( 1 )
+[connection signal="timeout" from="SpawnTimer" to="." method="_on_SpawnTimer_timeout"]
