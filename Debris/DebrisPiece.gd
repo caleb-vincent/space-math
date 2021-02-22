@@ -9,6 +9,8 @@ signal offScreen
 signal impact
 signal canceled
 
+const _spriteTypes = 2
+
 export var moveSpeed  = Vector2(-200, 10)
 
 var value : int = INF setget _setValue
@@ -21,6 +23,7 @@ var group : String = ""
 var _jumpTo = Vector2.ZERO
 var _pause = false
 
+onready var _rng : RandomNumberGenerator = get_parent()._rng
 
 ################################################################################
 #	Inherited Methods
@@ -57,6 +60,10 @@ func _process(delta: float) -> void:
 		if total == 0:
 			clearChain()
 			emit_signal("canceled")
+
+
+func _ready() -> void:
+	$Sprite.animation = "default" + str(_rng.randi_range(0, _spriteTypes - 1))
 
 ################################################################################
 #	Public Methods
