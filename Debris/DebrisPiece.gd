@@ -8,6 +8,7 @@ signal teleportReady
 signal offScreen
 signal impact
 signal canceled
+signal updated
 
 const _spriteTypes = 2
 
@@ -22,6 +23,7 @@ var group : String = ""
 
 var _jumpTo = Vector2.ZERO
 var _pause = false
+var _total = INF
 
 onready var _rng : RandomNumberGenerator = get_parent()._rng
 
@@ -60,6 +62,9 @@ func _process(delta: float) -> void:
 		if total == 0:
 			clearChain()
 			emit_signal("canceled")
+		elif total != _total:
+			emit_signal("updated", total, _total)
+			_total = total
 
 
 func _ready() -> void:

@@ -8,14 +8,29 @@ script/source = "extends SubGame
 
 const DebrisPiece = preload(\"DebrisPiece.tscn\")
 
-func _ready() -> void:
-	randomize()
-	_addDebris()
+var _payload : DebrisPiece = null
+var _options : Array = [INF]
+
+################################################################################
+#	Inherited Methods
+################################################################################
 
 
 func _process(_delta) -> void:
 	if Input.is_action_just_released(\"ui_accept\"):
 		_fire()
+
+
+func _ready() -> void:
+	randomize()
+	_reload()
+	_addDebris()
+
+
+
+################################################################################
+#	Private Methods
+################################################################################
 
 
 func _addDebris() -> void:
@@ -27,6 +42,7 @@ func _addDebris() -> void:
 
 	debris.connect(\"offScreen\", self, \"_debrisLeft\")
 	debris.connect(\"impact\", self, \"_onImpact\")
+	debris.connect(\"updated\", self, \"_debrisUpdated\")
 
 	var symbol = DebrisPiece.instance()
 	add_child(symbol)
@@ -43,28 +59,49 @@ func _addDebris() -> void:
 	symbol.connectTo(piece2)
 	pass
 
+
+func _fire() -> void:
+	if $FireTimer.time_left <= 0 && _payload != null:
+		_payload.linear_velocity.y = -800
+		$FireTimer.start()
+		_payload = null
+
+
+func _reload() -> void:
+	_payload = DebrisPiece.instance()
+	var option = _options[_rng.randi_range(0, _options.size() - 1)]
+	_payload.value = _rng.randi_range(-10, 10) if option == INF else option
+	_payload.collision_layer = 0x8
+	add_child(_payload)
+	_payload.position = $FirePosition.position
+
+
+################################################################################
+#	Signal Handling
+################################################################################
+
+
 func _debrisLeft(node : PhysicsBody2D) -> void:
 	node.teleportChain(Vector2($DebrisStart.position.x, node.position.y))
 
 
-func _fire() -> void:
-	if $FireTimer.time_left <= 0:
-		var payload = DebrisPiece.instance()
-		payload.value = _rng.randi_range(-10, 10)
-		payload.position = $FirePosition.position
-		payload.linear_velocity.y = -800
-		payload.collision_layer = 0x8
-		add_child(payload)
-		$FireTimer.start()
+func _debrisUpdated(difference : int, oldDifference : int) -> void:
+	if oldDifference != INF:
+		_options.remove(_options.find(oldDifference))
+	if abs(difference) < 10:
+		_options.append(difference)
 
 
 func _onImpact( node : PhysicsBody2D ) -> void:
 	node.clearChain()
 
 
-
 func _on_SpawnTimer_timeout() -> void:
 	_addDebris()
+
+
+func _on_FireTimer_timeout() -> void:
+	_reload()
 "
 
 [sub_resource type="ConvexPolygonShape2D" id=4]
@@ -83,6 +120,10 @@ position = Vector2( 1430.04, 96.0667 )
 wait_time = 1.5
 one_shot = true
 
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 20.0
+autostart = true
+
 [node name="FirePosition" type="Position2D" parent="."]
 position = Vector2( 640, 690 )
 
@@ -100,3 +141,5 @@ shape = SubResource( 3 )
 [node name="Sprite" type="Sprite" parent="SpaceStation"]
 scale = Vector2( 2.5, 2.5 )
 texture = ExtResource( 1 )
+[connection signal="timeout" from="FireTimer" to="." method="_on_FireTimer_timeout"]
+[connection signal="timeout" from="SpawnTimer" to="." method="_on_SpawnTimer_timeout"]
