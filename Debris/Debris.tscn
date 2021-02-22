@@ -8,6 +8,8 @@ script/source = "extends SubGame
 
 const DebrisPiece = preload(\"DebrisPiece.tscn\")
 
+const fireSpeed = 1000
+
 var _payload : DebrisPiece = null
 var _options : Array = [INF]
 
@@ -17,14 +19,14 @@ var _options : Array = [INF]
 
 
 func _process(_delta) -> void:
-	if Input.is_action_just_released(\"ui_accept\"):
+	if Input.is_action_just_released(\"ui_accept\") || Input.is_action_just_released(\"game_click\"):
 		_fire()
 
 
 func _ready() -> void:
-	randomize()
-	_reload()
+	_rng.randomize()
 	_addDebris()
+	$FireTimer.start()
 
 
 
@@ -62,7 +64,8 @@ func _addDebris() -> void:
 
 func _fire() -> void:
 	if $FireTimer.time_left <= 0 && _payload != null:
-		_payload.linear_velocity.y = -800
+		var target = get_viewport().get_mouse_position() - $FirePosition.position
+		_payload.linear_velocity = target.normalized() *  fireSpeed
 		$FireTimer.start()
 		_payload = null
 
@@ -117,7 +120,6 @@ script = SubResource( 2 )
 position = Vector2( 1430.04, 96.0667 )
 
 [node name="FireTimer" type="Timer" parent="."]
-wait_time = 1.5
 one_shot = true
 
 [node name="SpawnTimer" type="Timer" parent="."]
