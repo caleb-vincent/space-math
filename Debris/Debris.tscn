@@ -10,6 +10,7 @@ const DebrisPiece = preload(\"DebrisPiece.tscn\")
 const DebrisCluster = preload(\"DebrisCluster.tscn\")
 
 func _ready() -> void:
+	randomize()
 	_addDebris()
 
 
@@ -48,12 +49,14 @@ func _debrisLeft(node : PhysicsBody2D) -> void:
 
 
 func _fire() -> void:
-	var payload = DebrisPiece.instance()
-	payload.value = _rng.randi_range(-10, 10)
-	payload.position = Vector2(640, 640)
-	payload.linear_velocity.y = -800
-	payload.collision_layer = 0x8
-	add_child(payload)
+	if $FireTimer.time_left <= 0:
+		var payload = DebrisPiece.instance()
+		payload.value = _rng.randi_range(-10, 10)
+		payload.position = $FirePosition.position
+		payload.linear_velocity.y = -800
+		payload.collision_layer = 0x8
+		add_child(payload)
+		$FireTimer.start()
 
 
 func _onImpact( node : PhysicsBody2D ) -> void:
@@ -77,11 +80,11 @@ script = SubResource( 2 )
 [node name="DebrisStart" type="Position2D" parent="."]
 position = Vector2( 1430.04, 96.0667 )
 
-[node name="SpawnTimer" type="Timer" parent="."]
-wait_time = 20.0
-autostart = true
+[node name="FireTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
 
-[node name="SpawnPosition" type="Position2D" parent="."]
+[node name="FirePosition" type="Position2D" parent="."]
 position = Vector2( 640, 690 )
 
 [node name="SpaceStation" type="StaticBody2D" parent="."]
