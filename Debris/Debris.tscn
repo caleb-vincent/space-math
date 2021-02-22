@@ -73,7 +73,12 @@ func _fire() -> void:
 func _reload() -> void:
 	_payload = DebrisPiece.instance()
 	var option = _options[_rng.randi_range(0, _options.size() - 1)]
-	_payload.value = _rng.randi_range(-10, 10) if option == INF else option
+	if option == INF:
+		_payload.value = _rng.randi_range(-10, 10)
+		while _payload.value == 0:
+			_payload.value = _rng.randi_range(-10, 10)
+	else:
+		_payload.value = option
 	_payload.collision_layer = 0x8
 	add_child(_payload)
 	_payload.position = $FirePosition.position
