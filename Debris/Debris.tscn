@@ -7,7 +7,6 @@ script/source = "extends SubGame
 
 
 const DebrisPiece = preload(\"DebrisPiece.tscn\")
-const DebrisCluster = preload(\"DebrisCluster.tscn\")
 
 func _ready() -> void:
 	randomize()
