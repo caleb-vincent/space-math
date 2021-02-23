@@ -1,6 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://assets/turret.svg" type="Texture" id=1]
+[ext_resource path="res://assets/station.svg" type="Texture" id=2]
+[ext_resource path="res://assets/black.png" type="Texture" id=3]
 
 [sub_resource type="GDScript" id=2]
 script/source = "extends SubGame
@@ -126,6 +128,16 @@ radius = 68.0755
 [node name="Debris" type="Node"]
 script = SubResource( 2 )
 
+[node name="TextureRect" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 3 )
+expand = true
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="DebrisStart" type="Position2D" parent="."]
 position = Vector2( 1430.04, 96.0667 )
 __meta__ = {
@@ -156,6 +168,11 @@ shape = SubResource( 4 )
 [node name="TurretShape" type="CollisionShape2D" parent="SpaceStation"]
 position = Vector2( 0, -30 )
 shape = SubResource( 3 )
+
+[node name="Sprite2" type="Sprite" parent="SpaceStation"]
+position = Vector2( 8, 0.999939 )
+scale = Vector2( 1.5, 1 )
+texture = ExtResource( 2 )
 
 [node name="Sprite" type="Sprite" parent="SpaceStation"]
 position = Vector2( 0, -30 )
