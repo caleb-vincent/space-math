@@ -61,7 +61,7 @@ func _process(delta: float) -> void:
 		$DebugLabel.text = str(total)
 		if total == 0:
 			clearChain()
-			emit_signal("canceled")
+			emit_signal("canceled", _total)
 		elif total != _total:
 			emit_signal("updated", total, _total)
 			_total = total

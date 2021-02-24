@@ -12,8 +12,6 @@ const Ship = preload(\"Ship.tscn\")
 const INITIAL_VELOCITY = Vector2(-464,0)
 const EXIT_NUDGE = Vector2(-500,0)
 
-var GAME_OVER = tr(\"GAME_OVER_MSG\")
-var BONUS_MSG = tr(\"BONUS_MSG\")
 var MISSED_MSG = tr(\"MISSED_MSG\")
 var OVERLOADED_MSG = tr(\"OVERLOADED_MSG\")
 
@@ -135,7 +133,7 @@ func _on_Ship_shipReady() -> void:
 
 "
 
-[sub_resource type="RectangleShape2D" id=4]
+[sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 760, 216 )
 
 [sub_resource type="RectangleShape2D" id=3]
@@ -175,7 +173,7 @@ gravity_vec = Vector2( -1, 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DepartureAccelerator"]
 position = Vector2( -872, 304 )
-shape = SubResource( 4 )
+shape = SubResource( 2 )
 
 [node name="StoppingBuffer" type="Area2D" parent="."]
 position = Vector2( -136, 160 )
