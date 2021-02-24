@@ -12,7 +12,7 @@ signal updated
 
 const _spriteTypes = 2
 
-export var moveSpeed  = Vector2(-200, 10)
+onready var moveSpeed  = Vector2(-200 * _difficultySpeedFactor(), 10)
 
 var value : int = INF setget _setValue
 var symbol : String = "" setget _setSymbol
@@ -57,7 +57,7 @@ func _process(delta: float) -> void:
 			else:
 				total += node.value
 			node = node.follower
-		$DebugLabel.visible = OS.is_debug_build()
+		#$DebugLabel.visible = OS.is_debug_build()
 		$DebugLabel.text = str(total)
 		if total == 0:
 			clearChain()
@@ -69,6 +69,7 @@ func _process(delta: float) -> void:
 
 func _ready() -> void:
 	$Sprite.animation = "default" + str(_rng.randi_range(0, _spriteTypes - 1))
+
 
 ################################################################################
 #	Public Methods
@@ -118,6 +119,15 @@ func teleportChain(pos : Vector2) -> void:
 ################################################################################
 #	Private Methods
 ################################################################################
+
+
+func _difficultySpeedFactor() -> float:
+	if Options.selectedDifficulty == Options.Difficulty.EASY:
+		return 0.75
+	elif Options.selectedDifficulty == Options.Difficulty.HARD:
+		return 1.25
+	else:
+		return 1.0
 
 
 func _setIsFirst(b : bool) -> void:

@@ -1,0 +1,90 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/theme.tres" type="Theme" id=1]
+[ext_resource path="res://Debris/DebrisOptions.gd" type="Script" id=2]
+
+[node name="DebrisOptions" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+margin_left = 534.0
+margin_top = 290.0
+margin_right = 746.0
+margin_bottom = 430.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
+margin_right = 212.0
+margin_bottom = 27.0
+text = "MAX_ANSWER"
+
+[node name="MaxAnswerSelection" type="SpinBox" parent="CenterContainer/VBoxContainer"]
+margin_top = 31.0
+margin_right = 212.0
+margin_bottom = 68.0
+value = 10.0
+
+[node name="AntiTouchLabel" type="Label" parent="CenterContainer/VBoxContainer/MaxAnswerSelection"]
+margin_left = 123.0
+margin_right = 180.0
+margin_bottom = 37.0
+mouse_filter = 0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label3" type="Label" parent="CenterContainer/VBoxContainer"]
+margin_top = 72.0
+margin_right = 212.0
+margin_bottom = 99.0
+text = "MIN_ANSWER"
+
+[node name="MinAnswerSelection" type="SpinBox" parent="CenterContainer/VBoxContainer"]
+margin_top = 103.0
+margin_right = 212.0
+margin_bottom = 140.0
+value = 10.0
+
+[node name="AntiTouchLabel" type="Label" parent="CenterContainer/VBoxContainer/MinAnswerSelection"]
+margin_left = 123.0
+margin_right = 180.0
+margin_bottom = 37.0
+mouse_filter = 0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ExitButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -74.0
+margin_top = -47.0
+margin_right = 74.0
+text = "OK"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="value_changed" from="CenterContainer/VBoxContainer/MaxAnswerSelection" to="." method="_on_MaxAnswerSelection_value_changed"]
+[connection signal="value_changed" from="CenterContainer/VBoxContainer/MinAnswerSelection" to="." method="_on_MinAnswerSelection_value_changed"]
+[connection signal="pressed" from="ExitButton" to="." method="_exit"]

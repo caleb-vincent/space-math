@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Menu.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Dodge/DodgeOptions.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Debris/DebrisOptions.tscn" type="PackedScene" id=3]
 [ext_resource path="res://assets/black.png" type="Texture" id=4]
 
 [sub_resource type="GDScript" id=1]
@@ -51,10 +52,6 @@ func _on_difficultyChange(difficulty : int) -> void:
 	Options.selectedDifficulty = difficulty
 
 
-func _on_DodgeOptions_hide() -> void:
-	$Menu.visible = true
-
-
 func _on_gameOver() -> void:
 	game.queue_free()
 	game = null
@@ -99,8 +96,18 @@ func _on_Menu_debrisCanceling() -> void:
 	$Menu.visible = false
 	$Background.visible = false
 	game = Debris.instance()
+	game.debrisOptions = $DebrisOptions
 	game.connect(\"gameOver\", self, \"_on_gameOver\")
 	add_child(game)
+
+
+func _on_Menu_debrisOptions() -> void:
+	$Menu.visible = false
+	$DebrisOptions.visible = true
+
+
+func _on_Options_hide() -> void:
+	$Menu.visible = true
 
 "
 
@@ -128,10 +135,15 @@ size_flags_vertical = 0
 
 [node name="DodgeOptions" parent="." instance=ExtResource( 2 )]
 visible = false
+
+[node name="DebrisOptions" parent="." instance=ExtResource( 3 )]
+visible = false
 [connection signal="astroidDodge" from="Menu" to="." method="_on_Menu_astroidDodge"]
 [connection signal="astroidDodgeOptions" from="Menu" to="." method="_on_Menu_astroidDodgeOptions"]
 [connection signal="cargoPlacing" from="Menu" to="." method="_on_Menu_cargoPlacing"]
 [connection signal="debrisCanceling" from="Menu" to="." method="_on_Menu_debrisCanceling"]
+[connection signal="debrisOptions" from="Menu" to="." method="_on_Menu_debrisOptions"]
 [connection signal="difficultSelected" from="Menu" to="." method="_on_difficultyChange"]
 [connection signal="rollCredits" from="Menu" to="." method="_on_Menu_credits"]
-[connection signal="hide" from="DodgeOptions" to="." method="_on_DodgeOptions_hide"]
+[connection signal="hide" from="DodgeOptions" to="." method="_on_Options_hide"]
+[connection signal="hide" from="DebrisOptions" to="." method="_on_Options_hide"]

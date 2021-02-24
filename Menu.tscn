@@ -11,6 +11,7 @@ signal astroidDodge
 signal astroidDodgeOptions
 signal cargoPlacing
 signal debrisCanceling
+signal debrisOptions
 signal difficultSelected
 signal rollCredits
 
@@ -43,6 +44,10 @@ func _on_CreditsButton_pressed() -> void:
 func _on_Debris_pressed() -> void:
 	emit_signal(\"debrisCanceling\")
 
+
+
+func _on_DebrisOptionsButton_pressed() -> void:
+	emit_signal(\"debrisOptions\")
 "
 
 [node name="Menu" type="Control"]
@@ -122,13 +127,21 @@ __meta__ = {
 }
 
 [node name="DebrisButton" type="Button" parent="VBoxContainer2/HBoxContainer3"]
-margin_right = 489.0
+margin_right = 312.0
 margin_bottom = 92.0
 rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "DEBRIS_CANCELING"
 expand_icon = true
+
+[node name="DebrisOptionsButton" type="Button" parent="VBoxContainer2/HBoxContainer3"]
+margin_left = 316.0
+margin_right = 489.0
+margin_bottom = 92.0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "OPTIONS"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchor_left = 0.5
@@ -174,5 +187,6 @@ __meta__ = {
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/DodgeOptionsButton" to="." method="_on_DodgeOptionsButton_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer2/CargoButton" to="." method="_on_Cargo_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer3/DebrisButton" to="." method="_on_Debris_pressed"]
+[connection signal="pressed" from="VBoxContainer2/HBoxContainer3/DebrisOptionsButton" to="." method="_on_DebrisOptionsButton_pressed"]
 [connection signal="item_selected" from="VBoxContainer/OptionButton" to="." method="_on_OptionButton_item_selected"]
 [connection signal="pressed" from="CreditsButton" to="." method="_on_CreditsButton_pressed"]
