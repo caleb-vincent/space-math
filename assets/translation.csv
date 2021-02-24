@@ -32,8 +32,9 @@ caleb-vincent.gitlab.io
 with modified assets sourced  from
 
 ""UI pack: Space extension""
-and
 ""Space Shooter (Redux, plus fonts and sounds)""
+and
+“Space Shooter Extension”
 by
 Kenney Vleugels
 www.kenney.nl
@@ -47,7 +48,7 @@ opengameart.org/content/top-down-2d-metal-box
 by
 Buch
 opengameart.org/users/buch"
-"DEBRIS_CANCELING","Debris Canceling"
+"DEBRIS_CANCELING","Debris Balance"
 "DEBRIS_OPENING","Balance equations
 to clear the debris"
 "MIN_ANSWER","Min Answer"

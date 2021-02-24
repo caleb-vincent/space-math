@@ -39,7 +39,7 @@ func _on_ExitButton_pressed() -> void:
 "
 
 [sub_resource type="DynamicFont" id=2]
-size = 24
+size = 22
 font_data = ExtResource( 4 )
 
 [node name="Credits" type="Node"]

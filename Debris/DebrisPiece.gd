@@ -10,10 +10,11 @@ signal impact
 signal canceled
 signal updated
 
-const _spriteTypes = 2
+const _spriteTypes = 6
 
 onready var moveSpeed  = Vector2(-200 * _difficultySpeedFactor(), 10)
 
+var isProjectile = false setget _setIsProjectile
 var value : int = INF setget _setValue
 var symbol : String = "" setget _setSymbol
 var isFirst : bool = true setget _setIsFirst
@@ -95,7 +96,7 @@ func connectTo(p : PhysicsBody2D) -> void:
 	follower = p
 	if oldNode != null:
 		p.connectTo(oldNode)
-
+	isFirst = leader == null || leader.symbol != ""
 
 func hiddenChain() -> void:
 	if follower != null:
@@ -133,6 +134,11 @@ func _difficultySpeedFactor() -> float:
 func _setIsFirst(b : bool) -> void:
 	isFirst = b
 	_setValue(value)
+
+
+func _setIsProjectile(b : bool) -> void:
+	isProjectile = b
+	$Sprite.animation = "projectile"
 
 
 func _setSymbol(s : String) -> void:

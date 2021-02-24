@@ -111,6 +111,7 @@ func _reload() -> void:
 	_payload.collision_layer = 0x8
 	add_child_below_node($FirePosition, _payload)
 	_payload.position = $FirePosition.position
+	_payload.isProjectile = true
 
 
 ################################################################################
@@ -142,8 +143,9 @@ func _onImpact( node : PhysicsBody2D ) -> void:
 	else:
 		$Hud.msgText = GAME_OVER
 		$FireTimer.stop()
-		_payload.queue_free()
-		_payload = null
+		if _payload != null:
+			_payload.queue_free()
+			_payload = null
 
 
 func _on_DebrisHud_gameOver() -> void:

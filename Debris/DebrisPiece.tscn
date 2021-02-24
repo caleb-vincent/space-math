@@ -1,15 +1,25 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://assets/meteorGrey_med1.png" type="Texture" id=1]
 [ext_resource path="res://Debris/DebrisPiece.gd" type="Script" id=2]
 [ext_resource path="res://assets/meteorGrey_med2.png" type="Texture" id=3]
+[ext_resource path="res://assets/driveCone.png" type="Texture" id=4]
+[ext_resource path="res://assets/noseCone01.png" type="Texture" id=5]
+[ext_resource path="res://assets/engine01.png" type="Texture" id=6]
+[ext_resource path="res://assets/rock01.png" type="Texture" id=7]
+[ext_resource path="res://assets/circle_gold_large.png" type="Texture" id=8]
 
-[sub_resource type="PhysicsMaterial" id=3]
+[sub_resource type="PhysicsMaterial" id=1]
 friction = 0.0
 bounce = 1.0
 
-[sub_resource type="SpriteFrames" id=4]
+[sub_resource type="SpriteFrames" id=2]
 animations = [ {
+"frames": [ ExtResource( 4 ) ],
+"loop": false,
+"name": "default2",
+"speed": 5.0
+}, {
 "frames": [ ExtResource( 3 ) ],
 "loop": false,
 "name": "default1",
@@ -19,29 +29,48 @@ animations = [ {
 "loop": false,
 "name": "default0",
 "speed": 0.0
+}, {
+"frames": [ ExtResource( 7 ) ],
+"loop": true,
+"name": "default5",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ) ],
+"loop": true,
+"name": "default3",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 8 ) ],
+"loop": true,
+"name": "projectile",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 5 ) ],
+"loop": true,
+"name": "default4",
+"speed": 5.0
 } ]
 
-[sub_resource type="CircleShape2D" id=2]
-radius = 15.1259
+[sub_resource type="CircleShape2D" id=3]
+radius = 24.0
 
 [node name="DebrisPiece" type="RigidBody2D"]
 position = Vector2( 0.5, 0 )
 collision_layer = 4
 collision_mask = 13
 mode = 2
-physics_material_override = SubResource( 3 )
+physics_material_override = SubResource( 1 )
 contacts_reported = 3
 contact_monitor = true
 linear_damp = 0.0
 script = ExtResource( 2 )
 
 [node name="Sprite" type="AnimatedSprite" parent="."]
-scale = Vector2( 0.75, 0.75 )
-frames = SubResource( 4 )
-animation = "default0"
+frames = SubResource( 2 )
+animation = "default4"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 2 )
+shape = SubResource( 3 )
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
 
@@ -54,6 +83,22 @@ margin_left = -7.72909
 margin_top = -4.9687
 margin_right = 10.2709
 margin_bottom = 9.0313
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label2" type="Label" parent="."]
+anchor_left = -1.0
+anchor_top = -1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -43.6413
+margin_top = -10.0
+margin_right = -25.6413
+margin_bottom = 4.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
 align = 1
 valign = 1
