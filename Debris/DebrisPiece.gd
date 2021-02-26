@@ -105,6 +105,8 @@ func clearChain(success : bool) -> void:
 func connectTo(p : PhysicsBody2D) -> void:
 	_setIsProjectile(false)
 	p._setIsProjectile(false)
+	p._setIsFirst(symbol != "")
+	_setIsFirst(leader == null || leader.symbol != "")
 	if p == follower:
 		return
 	p.leader = self
@@ -152,7 +154,8 @@ func _difficultySpeedFactor() -> float:
 
 func _setIsFirst(b : bool) -> void:
 	isFirst = b
-	_setValue(value)
+	if symbol == "":
+		_setValue(value)
 
 
 func _setIsProjectile(b : bool) -> void:
