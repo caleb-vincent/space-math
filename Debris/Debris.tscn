@@ -137,7 +137,7 @@ func _debrisUpdated(difference : int, oldDifference : int) -> void:
 
 
 func _onImpact( node : PhysicsBody2D ) -> void:
-	node.clearChain()
+	node.clearChain(false)
 	if $Hud.lives > 0:
 		$Hud.lives -= 1
 	else:

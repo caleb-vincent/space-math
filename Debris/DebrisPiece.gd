@@ -10,6 +10,7 @@ signal impact
 signal canceled
 signal updated
 
+const _particlesTime = 0.25
 const _spriteTypes = 6
 
 onready var moveSpeed  = Vector2(-200 * _difficultySpeedFactor(), 10)
@@ -61,7 +62,7 @@ func _process(delta: float) -> void:
 		#$DebugLabel.visible = OS.is_debug_build()
 		$DebugLabel.text = str(total)
 		if total == 0:
-			clearChain()
+			clearChain(true)
 			emit_signal("canceled", _total)
 		elif total != _total:
 			emit_signal("updated", total, _total)
@@ -70,6 +71,11 @@ func _process(delta: float) -> void:
 
 func _ready() -> void:
 	$Sprite.animation = "default" + str(_rng.randi_range(0, _spriteTypes - 1))
+	$ProjectileParticles.emitting = false
+	$ProjectileParticles.visible = false
+	$RemovalTimer.wait_time = _particlesTime
+	$DestructionParticles.lifetime = _particlesTime
+	$BalancingParticles.lifetime = _particlesTime
 
 
 ################################################################################
@@ -77,11 +83,21 @@ func _ready() -> void:
 ################################################################################
 
 
-func clearChain() -> void:
-	leader = null
+func clearChain(success : bool) -> void:
+	$Sprite.visible = false
+	$ProjectileParticles.visible = false
+	$Label.visible = false
+	$DebugLabel.visible = false
+	if success:
+		$BalancingParticles.emitting = true
+	else:
+		$DestructionParticles.emitting = true
 	if follower != null:
-		yield(follower.clearChain(), "completed")
+		follower.clearChain(success)
 		follower = null
+	$RemovalTimer.start()
+	yield($RemovalTimer, "timeout")
+
 	queue_free()
 	yield(self, "tree_exited")
 
@@ -103,6 +119,8 @@ func hiddenChain() -> void:
 		yield(follower.hiddenChain(), "completed")
 	elif leader != null:
 		yield(self, "outOfSight")
+	else:
+		breakpoint
 
 	if leader == null:
 		emit_signal("offScreen", self)
@@ -138,6 +156,8 @@ func _setIsFirst(b : bool) -> void:
 
 func _setIsProjectile(b : bool) -> void:
 	isProjectile = b
+	$ProjectileParticles.visible = b
+	$ProjectileParticles.emitting = b
 	$Sprite.animation = "projectile"
 
 
@@ -178,4 +198,8 @@ func _on_DebrisPiece_body_entered(body: PhysicsBody2D) -> void:
 			leader.connectTo(body)
 		else:
 			connectTo(body)
+
+
+func _on_RemovalTimer_timeout() -> void:
+	pass
 
