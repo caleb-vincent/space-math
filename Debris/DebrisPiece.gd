@@ -103,16 +103,17 @@ func clearChain(success : bool) -> void:
 
 
 func connectTo(p : PhysicsBody2D) -> void:
+	_setIsProjectile(false)
+	p._setIsProjectile(false)
 	if p == follower:
 		return
-	p.collision_layer = 0x4
 	p.leader = self
-	p.group = group
 	var oldNode = follower
 	follower = p
 	if oldNode != null:
 		p.connectTo(oldNode)
 	isFirst = leader == null || leader.symbol != ""
+
 
 func hiddenChain() -> void:
 	if follower != null:
@@ -156,9 +157,10 @@ func _setIsFirst(b : bool) -> void:
 
 func _setIsProjectile(b : bool) -> void:
 	isProjectile = b
-	$ProjectileParticles.visible = b
-	$ProjectileParticles.emitting = b
-	$Sprite.animation = "projectile"
+	$ProjectileParticles.visible = isProjectile
+	$ProjectileParticles.emitting = isProjectile
+	if isProjectile:
+		$Sprite.animation = "projectile"
 
 
 func _setSymbol(s : String) -> void:
@@ -193,9 +195,14 @@ func _on_DebrisPiece_body_entered(body: PhysicsBody2D) -> void:
 	if leader == null && body is StaticBody2D:
 		emit_signal("impact", self)
 	elif body.collision_layer == 0x8:
+		body.collision_layer = 0x4
+		body.group = group
 		var contactVector = body.position - position
-		if contactVector.x < 0 && leader != null:
-			leader.connectTo(body)
+		if contactVector.x < 0:
+			if leader != null:
+				leader.connectTo(body)
+			else:
+				body.connectTo(self)
 		else:
 			connectTo(body)
 
