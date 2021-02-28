@@ -9,6 +9,7 @@ signal offScreen
 signal impact
 signal canceled
 signal updated
+signal newLeader
 
 const _particlesTime = 0.25
 const _spriteTypes = 6
@@ -105,6 +106,8 @@ func clearChain(success : bool) -> void:
 func connectTo(p : PhysicsBody2D) -> void:
 	_setIsProjectile(false)
 	p._setIsProjectile(false)
+	if p.leader == null && p.follower != null:
+		p.emit_signal("newLeader", self, p)
 	p._setIsFirst(symbol != "")
 	_setIsFirst(leader == null || leader.symbol != "")
 	if p == follower:

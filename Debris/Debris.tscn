@@ -70,10 +70,7 @@ func _addDebris() -> void:
 	debris.position = $DebrisStart.position
 	debris.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
 
-	debris.connect(\"offScreen\", self, \"_debrisLeft\")
-	debris.connect(\"impact\", self, \"_onImpact\")
-	debris.connect(\"updated\", self, \"_debrisUpdated\")
-	debris.connect(\"canceled\", self, \"_debrisCancled\")
+	_connectLeaderSignal(debris)
 
 	var symbol = DebrisPiece.instance()
 	add_child_below_node($DebrisStart, symbol)
@@ -89,6 +86,22 @@ func _addDebris() -> void:
 		piece2.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
 	symbol.connectTo(piece2)
 	pass
+
+
+func _connectLeaderSignal(node : DebrisPiece) -> void:
+	node.connect(\"offScreen\", self, \"_debrisLeft\")
+	node.connect(\"impact\", self, \"_onImpact\")
+	node.connect(\"updated\", self, \"_debrisUpdated\")
+	node.connect(\"canceled\", self, \"_debrisCancled\")
+	node.connect(\"newLeader\", self, \"_onNewLeader\")
+
+
+func _disconnectLeaderSignal(node : DebrisPiece) -> void:
+	node.disconnect(\"offScreen\", self, \"_debrisLeft\")
+	node.disconnect(\"impact\", self, \"_onImpact\")
+	node.disconnect(\"updated\", self, \"_debrisUpdated\")
+	node.disconnect(\"canceled\", self, \"_debrisCancled\")
+	node.disconnect(\"newLeader\", self, \"_onNewLeader\")
 
 
 func _fire() -> void:
@@ -146,6 +159,11 @@ func _onImpact( node : PhysicsBody2D ) -> void:
 		if _payload != null:
 			_payload.queue_free()
 			_payload = null
+
+
+func _onNewLeader( newLeader : DebrisPiece, oldLeader : DebrisPiece ) -> void:
+	_disconnectLeaderSignal(oldLeader)
+	_connectLeaderSignal(newLeader)
 
 
 func _on_DebrisHud_gameOver() -> void:

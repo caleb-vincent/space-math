@@ -164,6 +164,5 @@ hue_variation_random = 0.25
 wait_time = 0.25
 one_shot = true
 [connection signal="body_entered" from="." to="." method="_on_DebrisPiece_body_entered"]
-[connection signal="screen_entered" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_entered"]
 [connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]
 [connection signal="timeout" from="RemovalTimer" to="." method="_on_RemovalTimer_timeout"]
