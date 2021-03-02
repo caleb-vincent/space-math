@@ -103,7 +103,7 @@ func clearChain(success : bool) -> void:
 	yield(self, "tree_exited")
 
 
-func connectTo(p : PhysicsBody2D) -> void:
+func connectTo(p : DebrisPiece) -> void:
 	_setIsProjectile(false)
 	p._setIsProjectile(false)
 	if p.leader == null && p.follower != null:

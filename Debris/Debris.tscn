@@ -35,10 +35,9 @@ func _process(_delta) -> void:
 	if Input.is_action_just_released(\"ui_accept\") || Input.is_action_just_released(\"game_click\"):
 		_fire()
 	if $FireTimer.wait_time - $FireTimer.time_left > 0.25:
-		# TODO: This math is wrong.
-		var target = get_viewport().get_mouse_position() - $FirePosition.position
+		var target = get_viewport().get_mouse_position()
 		var angle = $FirePosition.position.angle_to_point(target)
-		$SpaceStation/Sprite.rotation = angle * PI
+		$SpaceStation/Sprite.rotation = angle + (PI/2)
 
 
 func _ready() -> void:
