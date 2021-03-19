@@ -4,7 +4,7 @@
 [ext_resource path="res://assets/meteorBrown_big4.png" type="Texture" id=3]
 [ext_resource path="res://assets/meteorBrown_big3.png" type="Texture" id=4]
 
-[sub_resource type="GDScript" id=66]
+[sub_resource type="GDScript" id=1]
 script/source = "extends RigidBody2D
 
 
@@ -23,10 +23,10 @@ func _on_VisibilityNotifier2D_screen_exited() -> void:
 	queue_free()
 "
 
-[sub_resource type="CircleShape2D" id=67]
+[sub_resource type="CircleShape2D" id=2]
 radius = 46.0
 
-[sub_resource type="SpriteFrames" id=68]
+[sub_resource type="SpriteFrames" id=3]
 animations = [ {
 "frames": [ ExtResource( 2 ) ],
 "loop": true,
@@ -52,17 +52,17 @@ contact_monitor = true
 linear_velocity = Vector2( 0, 60 )
 linear_damp = 0.0
 angular_damp = 0.0
-script = SubResource( 66 )
+script = SubResource( 1 )
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
 scale = Vector2( 4, 4 )
 rect = Rect2( -16, -16, 32, 32 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 67 )
+shape = SubResource( 2 )
 
 [node name="Sprite" type="AnimatedSprite" parent="."]
 position = Vector2( 1, -4 )
-frames = SubResource( 68 )
+frames = SubResource( 3 )
 animation = "type2"
 [connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]

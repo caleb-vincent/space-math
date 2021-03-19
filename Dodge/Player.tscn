@@ -15,11 +15,16 @@ const BOTTOM_MARGIN = 4
 const LEFT_MARGIN = 4
 const RIGHT_MARGIN = 4
 
+const _TOUCH_FACTOR_P = 0.75
+const _TOUCH_FACTOR_D = 0.1
+
 signal bonus
 signal goal
 signal hit
 
 export var speed = 12
+
+var _previousTouchError = Vector2.ZERO
 
 func _process(delta) -> void:
 	if sleeping:
@@ -44,7 +49,8 @@ func _process(delta) -> void:
 	if v.length() > 0:
 		v = v.normalized() * speed
 	elif $TouchScreenButton.get_value().length() > 0:
-		v = $TouchScreenButton.get_value().normalized() * speed
+		v = _TOUCH_FACTOR_P * $TouchScreenButton.get_button_pos() + _TOUCH_FACTOR_D * ($TouchScreenButton.get_button_pos() - _previousTouchError) / delta
+		_previousTouchError = $TouchScreenButton.get_button_pos()
 
 	if position.x < leftEdge && v.x <= 0:
 		v.x = 0
@@ -125,15 +131,12 @@ var boundary = 56
 
 var ongoing_drag = -1
 
-var return_accel = 20
-
 var threshold = 2
 var _enabled = false
 
 func _process(delta):
 	if ongoing_drag == -1:
-		var pos_difference = (Vector2(0, 0) - radius) - position
-		position += pos_difference * return_accel * delta
+		position = (Vector2(0, 0) - radius)
 
 func get_button_pos():
 	return position + radius
@@ -145,8 +148,8 @@ func _input(event):
 		if event_dist_from_centre <= boundary * global_scale.x or event.get_index() == ongoing_drag:
 			set_global_position(event.position - radius * global_scale)
 
-			if get_button_pos().length() > boundary:
-				set_position( get_button_pos().normalized() * boundary - radius)
+		if get_button_pos().length() > boundary:
+			set_position( get_button_pos().normalized() * boundary - radius)
 
 			ongoing_drag = event.get_index()
 
