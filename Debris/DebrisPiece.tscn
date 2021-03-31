@@ -61,6 +61,7 @@ font_data = ExtResource( 9 )
 
 [node name="DebrisPiece" type="RigidBody2D"]
 position = Vector2( 0.5, 0 )
+input_pickable = true
 collision_layer = 4
 collision_mask = 13
 mode = 2
@@ -164,5 +165,6 @@ hue_variation_random = 0.25
 wait_time = 0.25
 one_shot = true
 [connection signal="body_entered" from="." to="." method="_on_DebrisPiece_body_entered"]
+[connection signal="input_event" from="." to="." method="_on_DebrisPiece_input_event"]
 [connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]
 [connection signal="timeout" from="RemovalTimer" to="." method="_on_RemovalTimer_timeout"]

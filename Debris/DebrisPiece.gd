@@ -2,7 +2,6 @@ extends RigidBody2D
 
 class_name DebrisPiece
 
-signal outOfSight
 signal teleportDone
 signal teleportReady
 signal offScreen
@@ -10,9 +9,11 @@ signal impact
 signal canceled
 signal updated
 signal newLeader
+signal selected
 
 const _particlesTime = 0.25
 const _spriteTypes = 6
+const _fireSpeed = 2000
 
 onready var moveSpeed  = Vector2(-200 * _difficultySpeedFactor(), 10)
 
@@ -24,6 +25,17 @@ var leader : PhysicsBody2D = null
 var follower : PhysicsBody2D = null
 var group : String = ""
 
+
+enum _State {
+	Invalid,
+	Neutral,
+	Balistic,
+	Following,
+	Leading,
+	Tracking
+}
+
+var _state = _State.Invalid
 var _jumpTo = Vector2.ZERO
 var _pause = false
 var _total = INF
@@ -43,15 +55,18 @@ func  _integrate_forces (state : Physics2DDirectBodyState ):
 		state.linear_velocity = Vector2.ZERO
 		_jumpTo = Vector2.ZERO
 		emit_signal("teleportReady")
-	elif leader != null && is_instance_valid(leader) && !_pause && !leader._pause:
+	elif _state == _State.Following && is_instance_valid(leader) && !_pause && !leader._pause:
 		var targetPosition = leader.position + Vector2($CollisionShape2D.shape.radius, 0)
 		state.linear_velocity = (targetPosition - position) * ( 555 * state.step)
-	elif leader == null && follower != null && !_pause:
+	elif _state == _State.Leading && !_pause:
 		state.linear_velocity = moveSpeed
+	elif _state == _State.Tracking:
+		var targetPosition = leader.position + (leader.linear_velocity / 4)
+		state.linear_velocity = (targetPosition - position).normalized() * ( _fireSpeed)
 
 
 func _process(delta: float) -> void:
-	if leader == null && follower != null:
+	if _state == _State.Leading:
 		var total = 0
 		var node = self
 		while node != null && is_instance_valid(node):
@@ -77,6 +92,7 @@ func _ready() -> void:
 	$RemovalTimer.wait_time = _particlesTime
 	$DestructionParticles.lifetime = _particlesTime
 	$BalancingParticles.lifetime = _particlesTime
+	_setState(_State.Neutral)
 
 
 ################################################################################
@@ -104,32 +120,44 @@ func clearChain(success : bool) -> void:
 
 
 func connectTo(p : DebrisPiece) -> void:
-	_setIsProjectile(false)
-	p._setIsProjectile(false)
-	if p.leader == null && p.follower != null:
-		p.emit_signal("newLeader", self, p)
-	p._setIsFirst(symbol != "")
-	_setIsFirst(leader == null || leader.symbol != "")
 	if p == follower:
 		return
+	if p._state == _State.Leading:
+		p.emit_signal("newLeader", self, p)
+	p._setState(_State.Following)
+	p._setIsFirst(symbol != "")
+	_setIsFirst(leader == null || leader.symbol != "")
 	p.leader = self
 	var oldNode = follower
 	follower = p
 	if oldNode != null:
 		p.connectTo(oldNode)
-	isFirst = leader == null || leader.symbol != ""
+	if _state == _State.Balistic || _state == _State.Tracking || leader == null :
+		_setState(_State.Leading)
 
 
 func hiddenChain() -> void:
 	if follower != null:
 		yield(follower.hiddenChain(), "completed")
-	elif leader != null:
-		yield(self, "outOfSight")
+		emit_signal("offScreen", self)
+	else:
+		yield(self, "offScreen")
+
+
+func fire(dir : Vector2) -> void:
+	if _state == _State.Neutral:
+		_setState(_State.Balistic)
+		linear_velocity = dir.normalized() *  _fireSpeed
 	else:
 		breakpoint
 
-	if leader == null:
-		emit_signal("offScreen", self)
+
+func track(node : DebrisPiece) -> void:
+	if _state == _State.Neutral || _state == _State.Balistic:
+		_setState(_State.Tracking)
+		leader = node
+	else:
+		breakpoint
 
 
 func teleportChain(pos : Vector2) -> void:
@@ -183,25 +211,51 @@ func _setValue(v : int) -> void:
 		$Label.text = ""
 
 
+func _setState(state) -> void:
+	if _state == state:
+		return
+	match state:
+		_State.Balistic:
+			$ProjectileParticles.color = Color.yellow
+			collision_layer = DebrisData.CollisionLayer.PROJECTILE
+			collision_mask = DebrisData.CollisionMask.PROJECTILE
+		_State.Following:
+			collision_layer = DebrisData.CollisionLayer.FOLLOWER
+			collision_mask = DebrisData.CollisionMask.FOLLOWER
+		_State.Leading:
+			if _state == _State.Balistic || _state == _State.Tracking:
+				linear_velocity = Vector2.ZERO
+			collision_layer = DebrisData.CollisionLayer.LEADER
+			collision_mask = DebrisData.CollisionMask.LEADER
+		_State.Neutral:
+			collision_layer = DebrisData.CollisionLayer.NEUTRAL
+			collision_mask = DebrisData.CollisionMask.NEUTRAL
+		_State.Tracking:
+			$ProjectileParticles.color = Color.green
+			collision_layer = DebrisData.CollisionLayer.PROJECTILE
+			collision_mask = DebrisData.CollisionMask.PROJECTILE
+	print(str(self) + " from " + str(_state) + " to " + str(state))
+	_state = state
+
 ################################################################################
 #	Signal Handling
 ################################################################################
 
 
 func _on_VisibilityNotifier2D_screen_exited() -> void:
-	if leader == null && follower == null:
+	if _state == _State.Balistic || _state == _State.Tracking:
 		queue_free()
-	elif leader == null:
+	elif _state == _State.Leading:
 		hiddenChain()
 	else:
-		emit_signal("outOfSight")
+		emit_signal("offScreen")
 
 
 func _on_DebrisPiece_body_entered(body: PhysicsBody2D) -> void:
-	if leader == null && body is StaticBody2D:
+	if body is StaticBody2D:
 		emit_signal("impact", self)
-	elif body.collision_layer == 0x8:
-		body.collision_layer = 0x4
+	elif (_state== _State.Leading || _state == _State.Following) && (body._state == _State.Balistic || body._state == _State.Tracking):
+		body.linear_velocity = Vector2.ZERO
 		body.group = group
 		var contactVector = body.position - position
 		if contactVector.x < 0:
@@ -216,3 +270,7 @@ func _on_DebrisPiece_body_entered(body: PhysicsBody2D) -> void:
 func _on_RemovalTimer_timeout() -> void:
 	pass
 
+
+func _on_DebrisPiece_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if event.is_action_released("game_click"):
+		emit_signal("selected", self)

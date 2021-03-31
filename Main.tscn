@@ -21,10 +21,6 @@ var game : SubGame = null
 ################################################################################
 
 
-func _ready() -> void:
-	pass
-
-
 func _process(delta):
 	if game != null &&  Input.is_action_just_released(\"game_pause\"):
 		game.get_tree().paused = !game.get_tree().paused

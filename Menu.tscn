@@ -15,6 +15,10 @@ signal debrisOptions
 signal difficultSelected
 signal rollCredits
 
+func _ready() -> void:
+	if !OS.is_debug_build():
+		$VBoxContainer2/HBoxContainer3/DebrisButton.disabled = true
+		$VBoxContainer2/HBoxContainer3/DebrisOptionsButton.disabled = true
 
 func _on_Dodge_pressed() -> void:
 	emit_signal(\"astroidDodge\")
@@ -127,7 +131,7 @@ __meta__ = {
 }
 
 [node name="DebrisButton" type="Button" parent="VBoxContainer2/HBoxContainer3"]
-margin_right = 312.0
+margin_right = 242.0
 margin_bottom = 92.0
 rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
@@ -136,7 +140,7 @@ text = "DEBRIS_CANCELING"
 expand_icon = true
 
 [node name="DebrisOptionsButton" type="Button" parent="VBoxContainer2/HBoxContainer3"]
-margin_left = 316.0
+margin_left = 246.0
 margin_right = 489.0
 margin_bottom = 92.0
 size_flags_horizontal = 3
@@ -159,13 +163,13 @@ __meta__ = {
 
 [node name="Label" type="Label" parent="VBoxContainer"]
 margin_right = 176.0
-margin_bottom = 27.0
+margin_bottom = 28.0
 text = "DIFFICULTY"
 
 [node name="OptionButton" type="OptionButton" parent="VBoxContainer"]
-margin_top = 31.0
+margin_top = 32.0
 margin_right = 176.0
-margin_bottom = 78.0
+margin_bottom = 80.0
 text = "NORMAL"
 expand_icon = true
 items = [ "EASY", null, false, 0, null, "NORMAL", null, false, 1, null, "HARD", null, false, 2, null ]

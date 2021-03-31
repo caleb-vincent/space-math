@@ -34,6 +34,7 @@ config/icon="res://icon.png"
 
 Options="*res://Options.gd"
 Data="*res://Data.gd"
+DebrisData="*res://Debris/DebrisData.gd"
 
 [debug]
 

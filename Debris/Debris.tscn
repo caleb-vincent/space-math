@@ -10,9 +10,8 @@ script/source = "extends SubGame
 
 
 const DebrisPiece = preload(\"DebrisPiece.tscn\")
+const DebrisPieceType = preload(\"DebrisPiece.gd\")
 const DebrisOptions = preload(\"DebrisOptions.gd\")
-
-export var fireSpeed = 2000
 
 var debrisOptions : DebrisOptions = null
 
@@ -20,6 +19,7 @@ var debrisOptions : DebrisOptions = null
 var OPENING_MSG = tr(\"DEBRIS_OPENING\")
 
 var _payload : DebrisPiece = null
+var _projectile : DebrisPiece = null
 var _options : Array = [INF]
 var _started = false
 
@@ -32,7 +32,7 @@ var _started = false
 func _process(_delta) -> void:
 	if !_started:
 		return
-	if Input.is_action_just_released(\"ui_accept\") || Input.is_action_just_released(\"game_click\"):
+	if Input.is_action_just_released(\"ui_accept\"):
 		_fire()
 	if $FireTimer.wait_time - $FireTimer.time_left > 0.25:
 		var target = get_viewport().get_mouse_position()
@@ -56,6 +56,15 @@ func _ready() -> void:
 	$FireTimer.start()
 	$Hud.msgText = OPENING_MSG
 
+	$SpaceStation.collision_layer = DebrisData.CollisionLayer.STATION
+	$SpaceStation.collision_mask = DebrisData.CollisionMask.STATION
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_released(\"game_click\") && _payload != null:
+		var projectile = _payload
+		_fire()
+
 
 ################################################################################
 #	Private Methods
@@ -68,14 +77,17 @@ func _addDebris() -> void:
 	add_child_below_node($DebrisStart, debris)
 	debris.position = $DebrisStart.position
 	debris.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
-
+	print(\"Leader \" + str(debris))
+	debris.connect(\"selected\", self, \"_fireAtDebris\")
 	_connectLeaderSignal(debris)
 
 	var symbol = DebrisPiece.instance()
 	add_child_below_node($DebrisStart, symbol)
 	symbol.symbol = \"=\"
 	symbol.position = debris.position + Vector2(48, 0)
+	print(\"Symbol \" + str(symbol))
 	debris.connectTo(symbol)
+	symbol.connect(\"selected\", self, \"_fireAtDebris\")
 
 	var piece2 = DebrisPiece.instance()
 	add_child_below_node($DebrisStart, piece2)
@@ -83,8 +95,9 @@ func _addDebris() -> void:
 	piece2.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
 	while piece2.value == debris.value:
 		piece2.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
+	print(\"Follower \" + str(piece2))
 	symbol.connectTo(piece2)
-	pass
+	piece2.connect(\"selected\", self, \"_fireAtDebris\")
 
 
 func _connectLeaderSignal(node : DebrisPiece) -> void:
@@ -105,9 +118,9 @@ func _disconnectLeaderSignal(node : DebrisPiece) -> void:
 
 func _fire() -> void:
 	if $FireTimer.time_left <= 0 && _payload != null:
-		var target = get_viewport().get_mouse_position() - $FirePosition.position
-		_payload.linear_velocity = target.normalized() *  fireSpeed
+		_payload.fire(get_viewport().get_mouse_position() - $FirePosition.position)
 		$FireTimer.start()
+		_projectile = _payload
 		_payload = null
 
 
@@ -120,10 +133,10 @@ func _reload() -> void:
 			_payload.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
 	else:
 		_payload.value = option
-	_payload.collision_layer = 0x8
 	add_child_below_node($FirePosition, _payload)
 	_payload.position = $FirePosition.position
 	_payload.isProjectile = true
+	_payload.connect(\"selected\", self, \"_fireAtDebris\")
 
 
 ################################################################################
@@ -148,6 +161,14 @@ func _debrisUpdated(difference : int, oldDifference : int) -> void:
 		_options.append(difference)
 
 
+func _fireAtDebris(node : DebrisPiece) -> void:
+	if _payload != null:
+		_fire()
+	if _projectile != null:
+		_projectile.track(node)
+		_projectile = null
+
+
 func _onImpact( node : PhysicsBody2D ) -> void:
 	node.clearChain(false)
 	if $Hud.lives > 0:
@@ -161,8 +182,10 @@ func _onImpact( node : PhysicsBody2D ) -> void:
 
 
 func _onNewLeader( newLeader : DebrisPiece, oldLeader : DebrisPiece ) -> void:
-	_disconnectLeaderSignal(oldLeader)
-	_connectLeaderSignal(newLeader)
+	if oldLeader != null:
+		_disconnectLeaderSignal(oldLeader)
+	if newLeader != null:
+		_connectLeaderSignal(newLeader)
 
 
 func _on_DebrisHud_gameOver() -> void:
@@ -175,6 +198,7 @@ func _on_DebrisHud_msgGone() -> void:
 	elif !_started:
 		_addDebris()
 		_started = true
+
 
 func _on_SpawnTimer_timeout() -> void:
 	_addDebris()
@@ -193,11 +217,11 @@ radius = 68.0755
 
 [node name="Debris" type="Node"]
 script = SubResource( 1 )
-fireSpeed = 1000
 
 [node name="TextureRect" type="TextureRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 texture = ExtResource( 3 )
 expand = true
 stretch_mode = 2
@@ -215,7 +239,7 @@ autostart = true
 [node name="SpaceStation" type="StaticBody2D" parent="."]
 position = Vector2( 640, 720 )
 collision_layer = 2
-collision_mask = 4
+collision_mask = 2
 
 [node name="Sprite2" type="Sprite" parent="SpaceStation"]
 position = Vector2( 8, 0.999939 )
