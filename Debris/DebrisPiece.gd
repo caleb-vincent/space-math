@@ -126,7 +126,7 @@ func connectTo(p : DebrisPiece) -> void:
 		p.emit_signal("newLeader", self, p)
 	p._setState(_State.Following)
 	p._setIsFirst(symbol != "")
-	_setIsFirst(leader == null || leader.symbol != "")
+	_setIsFirst(leader != null && leader.symbol != "")
 	p.leader = self
 	var oldNode = follower
 	follower = p
@@ -227,6 +227,7 @@ func _setState(state) -> void:
 				linear_velocity = Vector2.ZERO
 			collision_layer = DebrisData.CollisionLayer.LEADER
 			collision_mask = DebrisData.CollisionMask.LEADER
+			_setIsFirst(true)
 		_State.Neutral:
 			collision_layer = DebrisData.CollisionLayer.NEUTRAL
 			collision_mask = DebrisData.CollisionMask.NEUTRAL
