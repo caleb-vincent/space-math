@@ -1,6 +1,6 @@
 [gd_resource type="Theme" load_steps=16 format=2]
 
-[ext_resource path="res://assets/kenvector_future.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://assets/font/Cactron/Cactron-Regular.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://assets/ButtonStyleNormal.tres" type="StyleBox" id=2]
 [ext_resource path="res://assets/ButtonStyle_Pressed.tres" type="StyleBox" id=3]
 [ext_resource path="res://assets/ButtonStyle_Disabled.tres" type="StyleBox" id=4]
@@ -95,7 +95,8 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 6
 
 [sub_resource type="DynamicFont" id=7]
-size = 24
+size = 27
+extra_spacing_char = 1
 font_data = ExtResource( 1 )
 
 [resource]
