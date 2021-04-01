@@ -195,6 +195,7 @@ func _setIsProjectile(b : bool) -> void:
 	$ProjectileParticles.emitting = isProjectile
 	if isProjectile:
 		$Sprite.animation = "projectile"
+		# Note: this does not change the animation of previous projectiles
 
 
 func _setSymbol(s : String) -> void:
@@ -214,6 +215,19 @@ func _setValue(v : int) -> void:
 func _setState(state) -> void:
 	if _state == state:
 		return
+
+	match _state:
+		_State.Balistic:
+			_setIsProjectile(false)
+		_State.Following:
+			_setIsProjectile(false)
+		_State.Leading:
+			pass
+		_State.Neutral:
+			pass
+		_State.Tracking:
+			pass
+
 	match state:
 		_State.Balistic:
 			$ProjectileParticles.color = Color.yellow
