@@ -17,6 +17,14 @@ func _process(delta):
 	$Background.scroll_offset.y +=  150 * delta
 
 
+func _ready() -> void:
+	var y = $TextPosition/Text.rect_size.y
+	$Tween.interpolate_property($TextPosition, \"position\",
+		Vector2($TextPosition.position.x, get_viewport().size.y), Vector2($TextPosition.position.x, -y), y/30,
+		$Tween.TRANS_LINEAR, $Tween.EASE_IN_OUT)
+	$Tween.start()
+
+
 ################################################################################
 #	Public Methods
 ################################################################################
@@ -39,7 +47,7 @@ func _on_ExitButton_pressed() -> void:
 "
 
 [sub_resource type="DynamicFont" id=2]
-size = 22
+size = 32
 font_data = ExtResource( 2 )
 
 [node name="Credits" type="Node"]
@@ -98,9 +106,29 @@ position = Vector2( 1024, 512 )
 texture = ExtResource( 1 )
 centered = false
 
-[node name="Text" type="Label" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="ExitButton" type="TextureButton" parent="."]
+margin_right = 12.0
+margin_bottom = 20.0
+action_mode = 0
+texture_normal = ExtResource( 3 )
+
+[node name="Tween" type="Tween" parent="."]
+repeat = true
+playback/repeat = true
+
+[node name="TextPosition" type="Position2D" parent="."]
+
+[node name="Text" type="Label" parent="TextPosition"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -42.5
+margin_top = -11.5
+margin_right = 42.5
+margin_bottom = 11.5
+rect_min_size = Vector2( 1280, 0 )
+size_flags_vertical = 6
 custom_fonts/font = SubResource( 2 )
 text = "CREDITS_TEXT"
 align = 1
@@ -108,10 +136,4 @@ valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="ExitButton" type="TextureButton" parent="."]
-margin_right = 12.0
-margin_bottom = 20.0
-action_mode = 0
-texture_normal = ExtResource( 3 )
 [connection signal="pressed" from="ExitButton" to="." method="_on_ExitButton_pressed"]
