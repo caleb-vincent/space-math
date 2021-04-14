@@ -12,6 +12,7 @@ const Cargo = preload(\"res://Cargo/Cargo.tscn\")
 const Credits = preload(\"res://Credits.tscn\")
 const Debris = preload(\"res://Debris/Debris.tscn\")
 const Dodge = preload(\"res://Dodge/Dodge.tscn\")
+const Tester = preload(\"res://TestingMenu.tscn\")
 
 var game : SubGame = null
 
@@ -105,6 +106,14 @@ func _on_Menu_debrisOptions() -> void:
 func _on_Options_hide() -> void:
 	$Menu.visible = true
 
+
+
+func _on_Menu_testyTester() -> void:
+	$Menu.visible = false
+	$Background.visible = false
+	game = Tester.instance()
+	game.connect(\"gameOver\", self, \"_on_gameOver\")
+	add_child(game)
 "
 
 [node name="Main" type="Node"]
@@ -141,5 +150,6 @@ visible = false
 [connection signal="debrisOptions" from="Menu" to="." method="_on_Menu_debrisOptions"]
 [connection signal="difficultSelected" from="Menu" to="." method="_on_difficultyChange"]
 [connection signal="rollCredits" from="Menu" to="." method="_on_Menu_credits"]
+[connection signal="testyTester" from="Menu" to="." method="_on_Menu_testyTester"]
 [connection signal="hide" from="DodgeOptions" to="." method="_on_Options_hide"]
 [connection signal="hide" from="DebrisOptions" to="." method="_on_Options_hide"]

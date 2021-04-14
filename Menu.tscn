@@ -1,11 +1,12 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://assets/meteorBrown_big1.png" type="Texture" id=1]
 [ext_resource path="res://assets/theme.tres" type="Theme" id=2]
 [ext_resource path="res://assets/cargoBox.png" type="Texture" id=3]
+[ext_resource path="res://assets/engine01.png" type="Texture" id=4]
 
 [sub_resource type="GDScript" id=1]
-script/source = "extends Control
+script/source = " extends Control
 
 signal astroidDodge
 signal astroidDodgeOptions
@@ -14,11 +15,13 @@ signal debrisCanceling
 signal debrisOptions
 signal difficultSelected
 signal rollCredits
+signal testyTester
 
 func _ready() -> void:
 	if !OS.is_debug_build():
 		$VBoxContainer2/HBoxContainer3/DebrisButton.disabled = true
 		$VBoxContainer2/HBoxContainer3/DebrisOptionsButton.disabled = true
+		$TestingButton.hide()
 
 func _on_Dodge_pressed() -> void:
 	emit_signal(\"astroidDodge\")
@@ -49,9 +52,12 @@ func _on_Debris_pressed() -> void:
 	emit_signal(\"debrisCanceling\")
 
 
-
 func _on_DebrisOptionsButton_pressed() -> void:
 	emit_signal(\"debrisOptions\")
+
+
+func _on_TestingButton_pressed() -> void:
+	emit_signal(\"testyTester\")
 "
 
 [node name="Menu" type="Control"]
@@ -131,20 +137,22 @@ __meta__ = {
 }
 
 [node name="DebrisButton" type="Button" parent="VBoxContainer2/HBoxContainer3"]
-margin_right = 242.0
+margin_right = 323.0
 margin_bottom = 92.0
 rect_min_size = Vector2( 0, 92 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "DEBRIS_CANCELING"
+icon = ExtResource( 4 )
 expand_icon = true
 
 [node name="DebrisOptionsButton" type="Button" parent="VBoxContainer2/HBoxContainer3"]
-margin_left = 246.0
+margin_left = 327.0
 margin_right = 489.0
 margin_bottom = 92.0
 size_flags_horizontal = 3
 size_flags_vertical = 5
+size_flags_stretch_ratio = 0.5
 text = "OPTIONS"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
@@ -187,6 +195,12 @@ text = "Credits"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="TestingButton" type="Button" parent="."]
+modulate = Color( 0.831373, 0.196078, 0.196078, 1 )
+margin_right = 81.0
+margin_bottom = 48.0
+text = "Testing"
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/DodgeButton" to="." method="_on_Dodge_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/DodgeOptionsButton" to="." method="_on_DodgeOptionsButton_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer2/CargoButton" to="." method="_on_Cargo_pressed"]
@@ -194,3 +208,4 @@ __meta__ = {
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer3/DebrisOptionsButton" to="." method="_on_DebrisOptionsButton_pressed"]
 [connection signal="item_selected" from="VBoxContainer/OptionButton" to="." method="_on_OptionButton_item_selected"]
 [connection signal="pressed" from="CreditsButton" to="." method="_on_CreditsButton_pressed"]
+[connection signal="pressed" from="TestingButton" to="." method="_on_TestingButton_pressed"]

@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends SubGame
+
+
+const PlayerTest = preload(\"res://Dodge/PlayerTest.tscn\")
+
+
+func _on_DodgePlayer_pressed() -> void:
+	$Buttons.hide()
+	var game = PlayerTest.instance()
+	add_child(game)
+
+
+func _on_ExitButton_pressed() -> void:
+	emit_signal(\"gameOver\")
+"
+
+[node name="TestingMenu" type="Node"]
+script = SubResource( 1 )
+
+[node name="Buttons" type="GridContainer" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ExitButton" type="Button" parent="Buttons"]
+margin_right = 96.0
+margin_bottom = 20.0
+text = "Exit"
+
+[node name="DodgePlayer" type="Button" parent="Buttons"]
+margin_top = 24.0
+margin_right = 96.0
+margin_bottom = 44.0
+text = "Dodge Player"
+[connection signal="pressed" from="Buttons/ExitButton" to="." method="_on_ExitButton_pressed"]
+[connection signal="pressed" from="Buttons/DodgePlayer" to="." method="_on_DodgePlayer_pressed"]
