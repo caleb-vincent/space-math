@@ -67,22 +67,7 @@ func  _integrate_forces (state : Physics2DDirectBodyState ):
 
 func _process(delta: float) -> void:
 	if _state == _State.Leading:
-		var total = 0
-		var node = self
-		while node != null && is_instance_valid(node):
-			if node.symbol != "":
-				total *= -1
-			else:
-				total += node.value
-			node = node.follower
-		#$DebugLabel.visible = OS.is_debug_build()
-		$DebugLabel.text = str(total)
-		if total == 0:
-			clearChain(true)
-			emit_signal("canceled", _total)
-		elif total != _total:
-			emit_signal("updated", total, _total)
-			_total = total
+		_updateTotal()
 
 
 func _ready() -> void:
@@ -101,6 +86,7 @@ func _ready() -> void:
 
 
 func clearChain(success : bool) -> void:
+	_setState(_State.Invalid)
 	$Sprite.visible = false
 	$ProjectileParticles.visible = false
 	$Label.visible = false
@@ -229,6 +215,8 @@ func _setState(state) -> void:
 			pass
 
 	match state:
+		_State.Invalid:
+			pass
 		_State.Balistic:
 			$ProjectileParticles.color = Color.yellow
 			collision_layer = DebrisData.CollisionLayer.PROJECTILE
@@ -242,6 +230,7 @@ func _setState(state) -> void:
 			collision_layer = DebrisData.CollisionLayer.LEADER
 			collision_mask = DebrisData.CollisionMask.LEADER
 			_setIsFirst(true)
+			_updateTotal()
 		_State.Neutral:
 			collision_layer = DebrisData.CollisionLayer.NEUTRAL
 			collision_mask = DebrisData.CollisionMask.NEUTRAL
@@ -251,6 +240,25 @@ func _setState(state) -> void:
 			collision_mask = DebrisData.CollisionMask.PROJECTILE
 	print(str(self) + " from " + str(_state) + " to " + str(state))
 	_state = state
+
+
+func _updateTotal() -> void:
+	var total = 0
+	var node = self
+	while node != null && is_instance_valid(node):
+		if node.symbol != "":
+			total *= -1
+		else:
+			total += node.value
+		node = node.follower
+	#$DebugLabel.visible = OS.is_debug_build()
+	$DebugLabel.text = str(total)
+	if total == 0:
+		clearChain(true)
+		emit_signal("canceled", _total)
+	elif total != _total:
+		emit_signal("updated", total, _total)
+		_total = total
 
 ################################################################################
 #	Signal Handling
@@ -263,7 +271,7 @@ func _on_VisibilityNotifier2D_screen_exited() -> void:
 	elif _state == _State.Leading:
 		hiddenChain()
 	else:
-		emit_signal("offScreen")
+		emit_signal("offScreen", self)
 
 
 func _on_DebrisPiece_body_entered(body: PhysicsBody2D) -> void:

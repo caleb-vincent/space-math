@@ -126,7 +126,8 @@ func _fire() -> void:
 
 func _reload() -> void:
 	_payload = DebrisPiece.instance()
-	var option = _options[_rng.randi_range(0, _options.size() - 1)]
+	var optionIndex = _rng.randi_range(0, _options.size()-1)
+	var option = _options[optionIndex]
 	if option == INF:
 		_payload.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
 		while _payload.value == 0:
@@ -146,19 +147,26 @@ func _reload() -> void:
 
 func _debrisCancled(oldDifference : int) -> void:
 	if oldDifference != INF:
-		_options.remove(_options.find(oldDifference))
+		_options.remove(_options.find(abs(oldDifference)))
 		$Hud.score += 1
+	if _options.size() == 1:
+		_addDebris()
+		$SpawnTimer.stop()
+		$SpawnTimer.start()
 
 
 func _debrisLeft(node : PhysicsBody2D) -> void:
 	node.teleportChain(Vector2($DebrisStart.position.x, node.position.y))
 
 
-func _debrisUpdated(difference : int, oldDifference : int) -> void:
+func _debrisUpdated(difference, oldDifference) -> void:
+	difference = abs(difference)
 	if oldDifference != INF:
-		_options.remove(_options.find(oldDifference))
+		_options.remove(_options.find(abs(oldDifference)))
 	if difference < debrisOptions.maxAnswer && difference > debrisOptions.minAnswer:
 		_options.append(difference)
+	else:
+		pass
 
 
 func _fireAtDebris(node : DebrisPiece) -> void:
