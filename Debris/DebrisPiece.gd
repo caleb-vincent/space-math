@@ -7,7 +7,6 @@ signal teleportReady
 signal offScreen
 signal impact
 signal canceled
-signal updated
 signal newLeader
 signal selected
 
@@ -230,7 +229,6 @@ func _setState(state) -> void:
 			collision_layer = DebrisData.CollisionLayer.LEADER
 			collision_mask = DebrisData.CollisionMask.LEADER
 			_setIsFirst(true)
-			_updateTotal()
 		_State.Neutral:
 			collision_layer = DebrisData.CollisionLayer.NEUTRAL
 			collision_mask = DebrisData.CollisionMask.NEUTRAL
@@ -256,8 +254,7 @@ func _updateTotal() -> void:
 	if total == 0:
 		clearChain(true)
 		emit_signal("canceled", _total)
-	elif total != _total:
-		emit_signal("updated", total, _total)
+	else:
 		_total = total
 
 ################################################################################
