@@ -14,7 +14,7 @@ const _particlesTime = 0.25
 const _spriteTypes = 6
 const _fireSpeed = 2000
 
-onready var moveSpeed  = Vector2(-200 * _difficultySpeedFactor(), 10)
+onready var moveSpeed  = Vector2(-192 * _difficultySpeedFactor(), 12)
 
 var isProjectile = false setget _setIsProjectile
 var value : int = INF setget _setValue
