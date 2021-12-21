@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://assets/PopupStyle_Normal.tres" type="StyleBox" id=1]
 [ext_resource path="res://assets/theme.tres" type="Theme" id=2]
@@ -11,7 +11,7 @@ script/source = "extends Control
 signal msgGone
 signal gameOver
 
-export var lives: int = 0 setget _setLives
+export var health : int = 100 setget _set_health, _get_health
 export var score = 0 setget _setScore
 export var msgText : String setget _setMessage
 
@@ -22,13 +22,17 @@ export var msgText : String setget _setMessage
 
 
 func _ready()-> void:
-	_setLives(lives)
+	_set_health(health)
 	_setScore(score)
 
 
 ################################################################################
 #	Private Methods
 ################################################################################
+
+
+func _get_health() -> int:
+	return int($VBoxContainer/StatusBar/LeftPanel/Health.value)
 
 
 func _setMessage(msg : String) -> void:
@@ -39,9 +43,9 @@ func _setMessage(msg : String) -> void:
 	$MsgTimer.start()
 
 
-func _setLives(l : int) -> void:
-	lives = l
-	$VBoxContainer/StatusBar/Lives/Label.text = str(l)
+func _set_health(h : int) -> void:
+	health = h
+	$VBoxContainer/StatusBar/LeftPanel/Health.value = h
 
 
 func _setScore(s : int) -> void:
@@ -66,6 +70,16 @@ func _on_MsgTimer_timeout() -> void:
 	emit_signal(\"msgGone\")
 
 "
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 1, 0.8, 0, 0.8 )
+border_color = Color( 0.8, 0.8, 0.8, 0 )
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxEmpty" id=4]
 
 [sub_resource type="DynamicFont" id=2]
 size = 64
@@ -110,7 +124,7 @@ size_flags_vertical = 3
 texture_normal = ExtResource( 4 )
 stretch_mode = 5
 
-[node name="Lives" type="Panel" parent="VBoxContainer/StatusBar"]
+[node name="LeftPanel" type="Panel" parent="VBoxContainer/StatusBar"]
 margin_left = 36.0
 margin_right = 242.0
 margin_bottom = 32.0
@@ -120,12 +134,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="VBoxContainer/StatusBar/Lives"]
+[node name="Health" type="ProgressBar" parent="VBoxContainer/StatusBar/LeftPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-text = "N"
-align = 1
-valign = 1
+margin_left = 4.0
+margin_top = 3.0
+margin_right = -4.0
+margin_bottom = -2.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/fg = SubResource( 3 )
+custom_styles/bg = SubResource( 4 )
+step = 1.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -207,5 +227,6 @@ valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
 [connection signal="timeout" from="MsgTimer" to="." method="_on_MsgTimer_timeout"]
 [connection signal="pressed" from="VBoxContainer/StatusBar/ExitButton" to="." method="_on_ExitButton_pressed"]

@@ -162,8 +162,8 @@ func _fireAtDebris(node : DebrisPiece) -> void:
 
 func _onImpact( node : PhysicsBody2D ) -> void:
 	node.clearChain(false)
-	if $Hud.lives > 0:
-		$Hud.lives -= 1
+	if $Hud.health > 0:
+		$Hud.health -= 5
 	else:
 		$Hud.msgText = GAME_OVER
 		$FireTimer.stop()
@@ -184,7 +184,7 @@ func _on_DebrisHud_gameOver() -> void:
 
 
 func _on_DebrisHud_msgGone() -> void:
-	if $Hud.lives <= 0:
+	if $Hud.health <= 0:
 		emit_signal(\"gameOver\")
 	elif !_started:
 		_addDebris()
@@ -271,20 +271,16 @@ position = Vector2( 0, -30 )
 shape = SubResource( 3 )
 
 [node name="DebrisStart" type="Position2D" parent="."]
-visible = false
-position = Vector2( 1376, 56 )
-__meta__ = {
-"_edit_lock_": true
-}
+position = Vector2( 1376, 64 )
 
 [node name="FirePosition" type="Position2D" parent="."]
+visible = false
 position = Vector2( 640, 690 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Hud" parent="." instance=ExtResource( 4 )]
-lives = 5
 
 [node name="AddButton" type="Button" parent="Hud"]
 visible = false
