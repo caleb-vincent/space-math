@@ -20,23 +20,23 @@ __meta__ = {
 }
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
-margin_left = 534.0
-margin_top = 285.0
-margin_right = 746.0
-margin_bottom = 435.0
+margin_left = 581.0
+margin_top = 283.0
+margin_right = 699.0
+margin_bottom = 437.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
-margin_right = 212.0
-margin_bottom = 27.0
+margin_right = 118.0
+margin_bottom = 28.0
 text = "GAME_TYPE"
 
 [node name="GameTypeSelection" type="OptionButton" parent="CenterContainer/VBoxContainer"]
-margin_top = 31.0
-margin_right = 212.0
-margin_bottom = 78.0
+margin_top = 32.0
+margin_right = 118.0
+margin_bottom = 80.0
 size_flags_horizontal = 3
 toggle_mode = false
 text = "ADDITION"
@@ -48,15 +48,15 @@ __meta__ = {
 }
 
 [node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
-margin_top = 82.0
-margin_right = 212.0
-margin_bottom = 109.0
+margin_top = 84.0
+margin_right = 118.0
+margin_bottom = 112.0
 text = "MAX_ANSWER"
 
 [node name="MaxAnswerSelection" type="SpinBox" parent="CenterContainer/VBoxContainer"]
-margin_top = 113.0
-margin_right = 212.0
-margin_bottom = 150.0
+margin_top = 116.0
+margin_right = 118.0
+margin_bottom = 154.0
 value = 10.0
 
 [node name="AntiTouchLabel" type="Label" parent="CenterContainer/VBoxContainer/MaxAnswerSelection"]
@@ -82,6 +82,7 @@ text = "OK"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
 [connection signal="item_selected" from="CenterContainer/VBoxContainer/GameTypeSelection" to="." method="_on_GameType_selected"]
 [connection signal="value_changed" from="CenterContainer/VBoxContainer/MaxAnswerSelection" to="." method="_on_MaxAnswer_changed"]
 [connection signal="pressed" from="ExitButton" to="." method="_exit"]

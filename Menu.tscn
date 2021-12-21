@@ -23,6 +23,9 @@ func _ready() -> void:
 		$VBoxContainer2/HBoxContainer3/DebrisOptionsButton.disabled = true
 		$TestingButton.hide()
 
+func setDifficulty(id:int) -> void:
+	$VBoxContainer/OptionButton.select(id)
+
 func _on_Dodge_pressed() -> void:
 	emit_signal(\"astroidDodge\")
 
@@ -201,6 +204,7 @@ modulate = Color( 0.831373, 0.196078, 0.196078, 1 )
 margin_right = 81.0
 margin_bottom = 48.0
 text = "Testing"
+
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/DodgeButton" to="." method="_on_Dodge_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/DodgeOptionsButton" to="." method="_on_DodgeOptionsButton_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer2/CargoButton" to="." method="_on_Cargo_pressed"]

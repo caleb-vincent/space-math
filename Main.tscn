@@ -16,10 +16,15 @@ const Tester = preload(\"res://TestingMenu.tscn\")
 
 var game : SubGame = null
 
+const settings_file = \"user://settings.save\"
 
 ################################################################################
 #	Inherited Methods
 ################################################################################
+
+func _ready() -> void:
+	_load_settings()
+	$Menu.setDifficulty(Options.selectedDifficulty)
 
 
 func _process(delta):
@@ -39,6 +44,18 @@ func _process(delta):
 ################################################################################
 
 
+func _save_settings():
+	var f = File.new()
+	f.open(settings_file, File.WRITE)
+	f.store_var(Options.selectedDifficulty)
+	f.close()
+	
+	
+func _load_settings():
+	var f = File.new()
+	if f.file_exists(settings_file):
+		f.open(settings_file, File.READ)
+		Options.selectedDifficulty = f.get_var()
 
 
 ################################################################################
@@ -47,6 +64,7 @@ func _process(delta):
 
 func _on_difficultyChange(difficulty : int) -> void:
 	Options.selectedDifficulty = difficulty
+	_save_settings()
 
 
 func _on_gameOver() -> void:
@@ -105,7 +123,7 @@ func _on_Menu_debrisOptions() -> void:
 
 func _on_Options_hide() -> void:
 	$Menu.visible = true
-
+	_save_settings()
 
 
 func _on_Menu_testyTester() -> void:
@@ -143,6 +161,7 @@ visible = false
 
 [node name="DebrisOptions" parent="." instance=ExtResource( 3 )]
 visible = false
+
 [connection signal="astroidDodge" from="Menu" to="." method="_on_Menu_astroidDodge"]
 [connection signal="astroidDodgeOptions" from="Menu" to="." method="_on_Menu_astroidDodgeOptions"]
 [connection signal="cargoPlacing" from="Menu" to="." method="_on_Menu_cargoPlacing"]
