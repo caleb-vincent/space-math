@@ -84,7 +84,6 @@ func _on_Menu_astroidDodge() -> void:
 	var dodge = Dodge.instance()
 	game = dodge
 	dodge.connect(\"gameOver\", self, \"_on_gameOver\")
-	dodge.connect(\"gamePaused\", self, \"_on_gamePaused\")
 	dodge.dodgeOptions = $DodgeOptions
 	add_child(dodge)
 

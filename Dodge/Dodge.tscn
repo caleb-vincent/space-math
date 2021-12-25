@@ -16,6 +16,8 @@ const Obstacle = preload(\"Obstacle.tscn\")
 const Target = preload(\"Target.tscn\")
 const DodgeOptions = preload(\"DodgeOptions.gd\")
 
+const save_file = \"user://Dodge.save\"
+
 var dodgeOptions : DodgeOptions = null
 
 var answer = -1
@@ -33,6 +35,7 @@ var _paused: bool  = false
 
 
 func _ready() -> void:
+	_loadData()
 	_rng.randomize()
 	$BonusSpawnTimer.wait_time /= _difficultyScale()
 	$ObstacleSpawnTimer.wait_time /= _difficultyScale()
@@ -204,6 +207,28 @@ func _setTargetInactive(target : RigidBody2D, force : bool = false) -> void:
 		_spawnedAnswers -= 1
 
 
+func _loadData() -> void:
+	var f = File.new()
+	if f.file_exists(save_file):
+		f.open(save_file, File.READ)
+		$Hud.highScore = f.get_var()
+
+
+func _saveData() -> void:
+	var f = File.new()
+	f.open(save_file, File.WRITE)
+	f.store_var($Hud.highScore)
+	f.close()
+
+
+func _endGame() -> void:
+	if $Hud.score > $Hud.highScore:
+		$Hud.setNewHighScore($Hud.score)
+	$Player.queue_free()
+	$Hud.gameOver()
+	$EndSplashTimer.start()
+	
+	
 ################################################################################
 #	Signal Handling
 ################################################################################
@@ -220,8 +245,9 @@ func _on_EndStartSplash() -> void:
 
 
 func _on_EndSplashOver() -> void:
+	_saveData()
 	emit_signal(\"gameOver\")
-
+	
 
 func _on_Player_bonus() -> void:
 	$Hud.health += BONUS_VALUE
@@ -235,13 +261,13 @@ func _on_Player_goal() -> void:
 func _on_Player_hit(d : float) -> void:
 	$Hud.health -= sqrt(d)
 	if $Hud.health <= 0:
-		$Player.queue_free()
-		$Hud.gameOver()
-		$EndSplashTimer.start()
+		_endGame()
 
 
 func _on_Hud_gamePaused(value):
 	get_tree().paused = value
+
+
 "
 
 [sub_resource type="GDScript" id=2]
@@ -344,5 +370,5 @@ linear_damp = 2.0
 [connection signal="timeout" from="TargetSpawnTimer" to="." method="_addTarget"]
 [connection signal="timeout" from="EndSplashTimer" to="." method="_on_EndSplashOver"]
 [connection signal="timeout" from="StartingSplashTimer" to="." method="_on_EndStartSplash"]
-[connection signal="gameOver" from="Hud" to="." method="_on_EndSplashOver"]
+[connection signal="gameOver" from="Hud" to="." method="_endGame"]
 [connection signal="gamePaused" from="Hud" to="." method="_on_Hud_gamePaused"]

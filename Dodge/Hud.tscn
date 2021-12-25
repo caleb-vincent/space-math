@@ -11,6 +11,7 @@ script/source = "extends Control
 var score : int = 0 setget _set_score, _get_score
 var question : String setget _set_question, _get_question
 var health : int = 100 setget _set_health, _get_health
+var highScore : int = 0 setget _set_high_score, _get_high_score
 
 signal gameOver
 signal gamePaused(value)
@@ -35,6 +36,10 @@ func gameOver() -> void:
 	$StatusBar.visible = false
 	$MessageContainer/GameOver.visible = true
 
+func setNewHighScore(s : int) -> void:
+	_set_high_score(s)
+	$MessageContainer/GameOver/VBoxContainer/Label.text = tr(\"NEW_HIGH_SCORE\")
+
 func _set_score(s : int) -> void:
 	$StatusBar/Panel/Score.text = str(s)
 
@@ -57,6 +62,13 @@ func _set_health(h : int) -> void:
 
 func _get_health() -> int:
 	return int($StatusBar/Panel3/Health.value)
+
+func _set_high_score(s : int) -> void:
+	$MessageContainer/GameOver/VBoxContainer/Score.text = str(s)
+	pass
+
+func _get_high_score() -> int:
+	return int($MessageContainer/GameOver/VBoxContainer/Score.text)
 
 
 func _on_ExitButton_pressed() -> void:
@@ -186,24 +198,51 @@ __meta__ = {
 }
 
 [node name="GameOver" type="PopupPanel" parent="MessageContainer"]
+visible = true
 margin_left = 531.0
-margin_top = 311.0
+margin_top = 261.0
 margin_right = 748.0
-margin_bottom = 408.0
+margin_bottom = 459.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
-[node name="Text" type="Label" parent="MessageContainer/GameOver"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MessageContainer/GameOver"]
 margin_left = 16.0
 margin_top = 16.0
 margin_right = 201.0
-margin_bottom = 81.0
+margin_bottom = 182.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="MessageContainer/GameOver/VBoxContainer"]
+margin_right = 289.0
+margin_bottom = 65.0
 custom_fonts/font = ExtResource( 2 )
-text = "GAME OVER"
+text = "GAME_OVER_MSG"
 align = 1
 valign = 1
 uppercase = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Label" type="Label" parent="MessageContainer/GameOver/VBoxContainer"]
+margin_top = 69.0
+margin_right = 289.0
+margin_bottom = 97.0
+text = "HIGH_SCORE"
+align = 1
+
+[node name="Score" type="Label" parent="MessageContainer/GameOver/VBoxContainer"]
+margin_top = 101.0
+margin_right = 289.0
+margin_bottom = 166.0
+custom_fonts/font = ExtResource( 2 )
+align = 1
+valign = 1
 
 [node name="StartingMessage" type="PopupPanel" parent="MessageContainer"]
 margin_left = 547.0
@@ -228,7 +267,6 @@ __meta__ = {
 }
 
 [node name="Paused" type="PopupPanel" parent="MessageContainer"]
-visible = true
 margin_left = 511.0
 margin_top = 285.0
 margin_right = 768.0
@@ -251,14 +289,14 @@ __meta__ = {
 margin_right = 225.0
 margin_bottom = 65.0
 custom_fonts/font = ExtResource( 2 )
-text = "Game Paused"
+text = "GAME_PAUSED_MSG"
 
 [node name="ResumeButton" type="Button" parent="MessageContainer/Paused/VBoxContainer"]
 pause_mode = 2
 margin_top = 69.0
 margin_right = 225.0
 margin_bottom = 117.0
-text = "Resume"
+text = "RESUME"
 
 [connection signal="pressed" from="StatusBar/ExitButton" to="." method="_on_ExitButton_pressed"]
 [connection signal="pressed" from="StatusBar/PauseButton" to="." method="_on_PauseButton_pressed"]
