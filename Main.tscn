@@ -29,7 +29,7 @@ func _ready() -> void:
 
 func _process(delta):
 	if game != null &&  Input.is_action_just_released(\"game_pause\"):
-		game.get_tree().paused = !game.get_tree().paused
+			_on_gamePause()
 	elif game != null &&  Input.is_action_pressed(\"game_escape\"):
 		_on_gameOver()
 
@@ -72,6 +72,10 @@ func _on_gameOver() -> void:
 	game = null
 	$Menu.visible = true
 	$Background.visible = true
+	
+	
+func _on_gamePause() -> void:
+	game.get_tree().paused = !game.get_tree().paused
 
 
 func _on_Menu_astroidDodge() -> void:
@@ -80,6 +84,7 @@ func _on_Menu_astroidDodge() -> void:
 	var dodge = Dodge.instance()
 	game = dodge
 	dodge.connect(\"gameOver\", self, \"_on_gameOver\")
+	dodge.connect(\"gamePaused\", self, \"_on_gamePaused\")
 	dodge.dodgeOptions = $DodgeOptions
 	add_child(dodge)
 

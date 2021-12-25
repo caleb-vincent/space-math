@@ -24,6 +24,7 @@ var _spawnedAnswers = 0
 var _failedAnswerSpawns = 0
 var _speedEntityCount = 0
 var _speedTotal : float
+var _paused: bool  = false
 
 
 ################################################################################
@@ -50,6 +51,7 @@ func _ready() -> void:
 		_addObstacle()
 	for _n in range(2):
 		_addTarget()
+	_on_Hud_gamePaused(false)
 	assert(dodgeOptions != null)
 
 
@@ -74,7 +76,7 @@ func _addBonus() -> void:
 
 func _addObstacle() -> void:
 	var mob = Obstacle.instance()
-	add_child_below_node($Player, mob)
+	add_child_below_node($Background, mob)
 	mob.position = Vector2(_rng.randf_range(-1 * SPAWN_MARGIN, get_viewport().size.x + SPAWN_MARGIN), -32)
 	mob.linear_velocity = _scaleVelocity(mob.linear_velocity)
 
@@ -98,7 +100,7 @@ func _addTarget() -> void:
 	mob.position = Vector2(_rng.randf_range(SPAWN_MARGIN, get_viewport().size.x - SPAWN_MARGIN), -64)
 	mob.linear_velocity = _scaleVelocity(mob.linear_velocity)
 
-	add_child_below_node($Player, mob)
+	add_child_below_node($Background, mob)
 	mob.add_to_group(\"targets\")
 
 
@@ -237,6 +239,9 @@ func _on_Player_hit(d : float) -> void:
 		$Hud.gameOver()
 		$EndSplashTimer.start()
 
+
+func _on_Hud_gamePaused(value):
+	get_tree().paused = value
 "
 
 [sub_resource type="GDScript" id=2]
@@ -327,13 +332,17 @@ centered = false
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 visible = false
+z_index = 0
+z_as_relative = false
 sleeping = true
 linear_damp = 2.0
 
 [node name="Hud" parent="." instance=ExtResource( 2 )]
+
 [connection signal="timeout" from="BonusSpawnTimer" to="." method="_addBonus"]
 [connection signal="timeout" from="ObstacleSpawnTimer" to="." method="_addObstacle"]
 [connection signal="timeout" from="TargetSpawnTimer" to="." method="_addTarget"]
 [connection signal="timeout" from="EndSplashTimer" to="." method="_on_EndSplashOver"]
 [connection signal="timeout" from="StartingSplashTimer" to="." method="_on_EndStartSplash"]
 [connection signal="gameOver" from="Hud" to="." method="_on_EndSplashOver"]
+[connection signal="gamePaused" from="Hud" to="." method="_on_Hud_gamePaused"]

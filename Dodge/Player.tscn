@@ -232,6 +232,7 @@ material = SubResource( 5 )
 position = Vector2( 0, -18 )
 scale = Vector2( 1.5, 1.5 )
 texture = ExtResource( 3 )
+
 [connection signal="body_entered" from="." to="." method="_on_Node2D_body_entered"]
 [connection signal="body_shape_entered" from="." to="." method="_on_Node2D_body_shape_entered"]
 [connection signal="pressed" from="TouchScreenButton" to="." method="_on_TouchScreenButton_pressed"]

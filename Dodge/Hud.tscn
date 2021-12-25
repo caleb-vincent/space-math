@@ -1,7 +1,8 @@
 [gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://assets/glassButton_close.png" type="Texture" id=1]
-[ext_resource path="res://assets/font/Cactron/Cactron-Regular.otf" type="DynamicFontData" id=2]
+[ext_resource path="res://assets/PopupFont.tres" type="DynamicFont" id=2]
+[ext_resource path="res://assets/glassButton_pause.png" type="Texture" id=3]
 [ext_resource path="res://assets/theme.tres" type="Theme" id=4]
 
 [sub_resource type="GDScript" id=1]
@@ -12,6 +13,7 @@ var question : String setget _set_question, _get_question
 var health : int = 100 setget _set_health, _get_health
 
 signal gameOver
+signal gamePaused(value)
 
 func _ready() -> void:
 	_set_score(score)
@@ -60,6 +62,17 @@ func _get_health() -> int:
 func _on_ExitButton_pressed() -> void:
 	emit_signal(\"gameOver\")
 
+
+func _on_PauseButton_pressed() -> void:
+	$StatusBar.visible = false
+	$MessageContainer/Paused.visible = true
+	emit_signal(\"gamePaused\", true)
+
+
+func _on_ResumeButton_pressed():
+	$StatusBar.visible = true
+	$MessageContainer/Paused.visible = false
+	emit_signal(\"gamePaused\", false)
 "
 
 [sub_resource type="StyleBoxFlat" id=2]
@@ -71,13 +84,6 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
 [sub_resource type="StyleBoxEmpty" id=3]
-
-[sub_resource type="DynamicFont" id=4]
-size = 64
-outline_color = Color( 0.486275, 0.662745, 0.717647, 1 )
-extra_spacing_char = -3
-extra_spacing_space = 2
-font_data = ExtResource( 2 )
 
 [node name="Hud" type="Control"]
 anchor_right = 1.0
@@ -106,7 +112,7 @@ stretch_mode = 4
 
 [node name="Panel3" type="Panel" parent="StatusBar"]
 margin_left = 36.0
-margin_right = 448.0
+margin_right = 436.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 32, 32 )
 size_flags_horizontal = 3
@@ -129,8 +135,8 @@ __meta__ = {
 }
 
 [node name="Panel2" type="Panel" parent="StatusBar"]
-margin_left = 452.0
-margin_right = 864.0
+margin_left = 440.0
+margin_right = 840.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 32, 32 )
 size_flags_horizontal = 3
@@ -148,8 +154,8 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="StatusBar"]
-margin_left = 868.0
-margin_right = 1280.0
+margin_left = 844.0
+margin_right = 1244.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 
@@ -163,6 +169,13 @@ valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="PauseButton" type="TextureButton" parent="StatusBar"]
+margin_left = 1248.0
+margin_right = 1280.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 32, 32 )
+texture_normal = ExtResource( 3 )
 
 [node name="MessageContainer" type="CenterContainer" parent="."]
 anchor_right = 1.0
@@ -183,7 +196,7 @@ margin_left = 16.0
 margin_top = 16.0
 margin_right = 201.0
 margin_bottom = 81.0
-custom_fonts/font = SubResource( 4 )
+custom_fonts/font = ExtResource( 2 )
 text = "GAME OVER"
 align = 1
 valign = 1
@@ -203,7 +216,7 @@ margin_left = 16.0
 margin_top = 16.0
 margin_right = 170.0
 margin_bottom = 217.0
-custom_fonts/font = SubResource( 4 )
+custom_fonts/font = ExtResource( 2 )
 text = "ENTERING
 ASTEROID 
 FIELD"
@@ -213,4 +226,40 @@ uppercase = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Paused" type="PopupPanel" parent="MessageContainer"]
+visible = true
+margin_left = 511.0
+margin_top = 285.0
+margin_right = 768.0
+margin_bottom = 434.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MessageContainer/Paused"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="MessageContainer/Paused/VBoxContainer"]
+margin_right = 225.0
+margin_bottom = 65.0
+custom_fonts/font = ExtResource( 2 )
+text = "Game Paused"
+
+[node name="ResumeButton" type="Button" parent="MessageContainer/Paused/VBoxContainer"]
+pause_mode = 2
+margin_top = 69.0
+margin_right = 225.0
+margin_bottom = 117.0
+text = "Resume"
+
 [connection signal="pressed" from="StatusBar/ExitButton" to="." method="_on_ExitButton_pressed"]
+[connection signal="pressed" from="StatusBar/PauseButton" to="." method="_on_PauseButton_pressed"]
+[connection signal="pressed" from="MessageContainer/Paused/VBoxContainer/ResumeButton" to="." method="_on_ResumeButton_pressed"]
