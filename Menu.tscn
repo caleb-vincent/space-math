@@ -19,8 +19,6 @@ signal testyTester
 
 func _ready() -> void:
 	if !OS.is_debug_build():
-		$VBoxContainer2/HBoxContainer3/DebrisButton.disabled = true
-		$VBoxContainer2/HBoxContainer3/DebrisOptionsButton.disabled = true
 		$TestingButton.hide()
 
 func setDifficulty(id:int) -> void:

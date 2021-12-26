@@ -33,8 +33,14 @@ var _started = false
 func _process(_delta) -> void:
 	if !_started:
 		return
+
 	if Input.is_action_just_released(\"ui_accept\"):
 		_fire()
+	elif Input.is_action_just_pressed(\"move_up\"):
+		_on_AddButton_pressed()
+	elif Input.is_action_just_pressed(\"move_down\"):
+		_on_SubtractButton_pressed()
+		
 	if $FireTimer.wait_time - $FireTimer.time_left > 0.25:
 		var target = get_viewport().get_mouse_position()
 		if target.y < $FirePosition.position.y - 48:
@@ -95,12 +101,20 @@ func _addDebris() -> void:
 	add_child_below_node($DebrisStart, piece2)
 	piece2.position = symbol.position + Vector2(48, 0)
 	piece2.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
-	while piece2.value == debris.value:
-		piece2.value = _rng.randi_range(debrisOptions.minAnswer, debrisOptions.maxAnswer)
 	print(\"Follower \" + str(piece2))
 	symbol.connectTo(piece2)
 	piece2.connect(\"selected\", self, \"_fireAtDebris\")
-
+	
+	if piece2.value == debris.value:
+		var piece3 = DebrisPiece.instance()
+		add_child_below_node($DebrisStart, piece3)
+		piece3.position = piece2.position + Vector2(48, 0)
+		piece3.value = _rng.randi_range(debrisOptions.minAnswer/2, debrisOptions.maxAnswer/2)
+		while(piece3.value == 0):
+			_rng.randi_range(debrisOptions.minAnswer/2, debrisOptions.maxAnswer/2)
+		print(\"Extra Follower \" + str(piece3))
+		piece3.connect(\"selected\", self, \"_fireAtDebris\")
+		piece2.connectTo(piece3)
 
 func _connectLeaderSignal(node : DebrisPiece) -> void:
 	node.connect(\"offScreen\", self, \"_debrisLeft\")
@@ -130,7 +144,7 @@ func _reload() -> void:
 	_payload.position = $FirePosition.position
 	_payload.isProjectile = true
 	_payload.connect(\"selected\", self, \"_fireAtDebris\")
-	_payload.value = _rng.randi_range(debrisOptions.minAnswer + 1, debrisOptions.maxAnswer - 1)
+	_payload.value = _rng.randi_range((debrisOptions.minAnswer / 2) + 1, (debrisOptions.maxAnswer / 2) - 1)
 	while _payload.value == 0:
 		_payload.value = _rng.randi_range(debrisOptions.minAnswer + 1, debrisOptions.maxAnswer - 1)
 
