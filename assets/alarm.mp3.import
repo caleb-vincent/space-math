@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/alarm.mp3-677297bc7c0112d3a7c70e63afba149b.mp3str"
+
+[deps]
+
+source_file="res://assets/alarm.mp3"
+dest_files=[ "res://.import/alarm.mp3-677297bc7c0112d3a7c70e63afba149b.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0
