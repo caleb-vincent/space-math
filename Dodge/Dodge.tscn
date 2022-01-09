@@ -8,7 +8,7 @@
 script/source = "extends SubGame
 
 const SPAWN_MARGIN = 16
-const SPEED_SCALING = 2
+const SPEED_SCALING = 2.25
 const BONUS_VALUE = 5
 
 const Bonus = preload(\"Bonus.tscn\")
@@ -109,9 +109,9 @@ func _addTarget() -> void:
 
 func _difficultyScale() -> float:
 	if Options.selectedDifficulty == Options.Difficulty.EASY:
-		return 0.75
+		return 0.67
 	elif Options.selectedDifficulty == Options.Difficulty.HARD:
-		return 1.25
+		return 1.33
 	return 1.0
 
 
