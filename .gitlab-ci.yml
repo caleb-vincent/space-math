@@ -3,6 +3,7 @@ image: barichello/godot-ci:3.4.2
 
 variables:
   PROJECT_NAME: SpaceMath
+  GODOT_VERSION: 3.4.2
 
 
 stages:
@@ -72,6 +73,18 @@ android-unsigned:
   script:
     - mkdir -v -p ../build/android
     - godot -v --export "Android Unsigned" ../build/android/$PROJECT_NAME-unsigned.apk
+  artifacts:
+    name: $EXPORT_NAME-$CI_JOB_NAME
+    paths:
+      - build/android
+
+
+android-google-play:
+  stage: export
+  script:
+    - mkdir -v -p ../build/android
+    - unzip ~/.local/share/godot/templates/${GODOT_VERSION}.stable/android_source.zip android/build
+    - godot -v --export "Android Google Play" ../build/android/$PROJECT_NAME.aab
   artifacts:
     name: $EXPORT_NAME-$CI_JOB_NAME
     paths:
