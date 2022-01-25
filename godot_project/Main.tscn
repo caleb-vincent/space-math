@@ -28,7 +28,7 @@ func _ready() -> void:
 
 
 func _process(delta):
-	if game != null &&  Input.is_action_just_released(\"game_pause\"):
+	if game != null && OS.is_debug_build() && Input.is_action_just_released(\"game_pause\"):
 			_on_gamePause()
 	elif game != null &&  Input.is_action_pressed(\"game_escape\"):
 		_on_gameOver()

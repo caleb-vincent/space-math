@@ -3,7 +3,8 @@ image: barichello/godot-ci:3.4.2
 
 variables:
   PROJECT_NAME: SpaceMath
-  GODOT_VERSION: 3.4.2
+  GODOT_VERSION: 3.4.2.stable
+  GODOT_VERSION_CUSTOM: 3.4.2.caleb.1
 
 
 stages:
@@ -31,7 +32,6 @@ before_script:
 
 
 after_script:
-      # revert changes to the translations
    - git checkout -- godot_project/assets/translation.csv
 
 
@@ -79,25 +79,48 @@ android-unsigned:
       - build/android
 
 
-android-google-play:
-  stage: export
-  script:
-    - mkdir -v -p ../build/android
-    - unzip ~/.local/share/godot/templates/${GODOT_VERSION}.stable/android_source.zip android/build
-    - godot -v --export "Android Google Play" ../build/android/$PROJECT_NAME.aab
-  artifacts:
-    name: $EXPORT_NAME-$CI_JOB_NAME
-    paths:
-      - build/android
-
-
-# Android Release Job. You will need to include keystore and password in the GitLab variable settings:
+# Signed Android Jobs. You will need to include keystore and password in the GitLab variable settings:
 # 1. Take your generated keystore and convert it to Base64:
 #   Linux & macOS: `base64 release.keystore -w 0`
 #   Windows: `certutil -encodehex -f release.keystore encoded.txt 0x40000001`
 # 2. Go to GitLab Project > Settings > CI/CD > Variables and copy the Base64-encoded keystore value in a new variable `SECRET_RELEASE_KEYSTORE_BASE64` as type variable.
 # 3. Create a second variable SECRET_RELEASE_KEYSTORE_USER as type variable with the alias of your keystore as value.
 # 4. Create a third variable SECRET_RELEASE_KEYSTORE_PASSWORD as type variable with the password of your keystore as value.
+
+
+android-google-play:
+  stage: export
+  only:
+    refs:
+      - tags
+    variables:
+      - $SECRET_RELEASE_KEYSTORE_BASE64 && $SECRET_RELEASE_KEYSTORE_USER && $SECRET_RELEASE_KEYSTORE_PASSWORD
+  except:
+    - branches
+  script:
+      # building an Android App Bundle requires java>=11
+    - apt-get update && apt-get install openjdk-17-jdk-headless -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
+      # Need a custom version of Godot with error reporting, for now
+    - wget --load-cookies cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1_KaRaKREgtCE63KluA1kwbU9C31ACkNP' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1_KaRaKREgtCE63KluA1kwbU9C31ACkNP" -O godot.zip && rm -rf cookies.txt
+    - unzip godot.zip
+    - mv godot_server.x11.opt.tools.64 /usr/local/bin/godot
+    - echo $SECRET_RELEASE_KEYSTORE_BASE64 | base64 --decode > /root/release.keystore
+    - mkdir -v -p ../build/android
+    - sed 's@keystore/release=".*"@keystore/release="'/root/release.keystore'"@g' -i export_presets.cfg
+    - sed 's@keystore/release_user=".*"@keystore/release_user="'$SECRET_RELEASE_KEYSTORE_USER'"@g' -i export_presets.cfg
+    - sed 's@keystore/release_password=".*"@keystore/release_password="'$SECRET_RELEASE_KEYSTORE_PASSWORD'"@g' -i export_presets.cfg
+    - mkdir -v -p android/build
+    - mkdir -v -p android/plugins
+    - unzip ~/.local/share/godot/templates/${GODOT_VERSION}/android_source.zip -d android/build
+    - chmod -R u+w android
+    - echo $GODOT_VERSION_CUSTOM > android/.build_version
+    - touch android/build/.gdignore
+    - godot -v --export "Android Google Play" ../build/android/$PROJECT_NAME.aab
+  artifacts:
+    name: $EXPORT_NAME-$CI_JOB_NAME
+    paths:
+      - build/android
+
 
 android:
   stage: export
@@ -120,12 +143,13 @@ android:
 
 linux_package:
   stage: package
+  needs:
+   - job: linux
+     artifacts: true
   only:
     - tags
   except:
     - branches
-  dependencies:
-    - linux
   script:
     - |
       cd ../build/linux
@@ -136,12 +160,13 @@ linux_package:
 
 android_package:
   stage: package
+  needs:
+   - job: android
+     artifacts: true
   only:
     - tags
   except:
     - branches
-  dependencies:
-    - android
   script:
     - |
       cd ../build/android
@@ -151,12 +176,13 @@ android_package:
 
 android-unsigned_package:
   stage: package
+  needs:
+   - job: android-unsigned
+     artifacts: true
   only:
     - tags
   except:
     - branches
-  dependencies:
-    - android-unsigned
   script:
     - |
       cd ../build/android
@@ -166,12 +192,13 @@ android-unsigned_package:
 
 windows_package:
   stage: package
+  needs:
+   - job: windows
+     artifacts: true
   only:
     - tags
   except:
     - branches
-  dependencies:
-    - windows
   script:
     - |
       cd ../build/windows
@@ -182,8 +209,9 @@ windows_package:
 
 pages:
   stage: package
-  dependencies:
-    - web
+  needs:
+   - job: web
+     artifacts: true
   only:
     - tags
   except:
@@ -194,4 +222,5 @@ pages:
   artifacts:
     paths:
       - public
+
 

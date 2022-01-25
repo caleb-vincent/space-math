@@ -1,10 +1,7 @@
-/android/
-/.import/
 test_assets/
 /bin/*
 /git_api.*
 *.bak*.dxf
 ~*
 .~*
-export_presets.cfg
-
+/build/
